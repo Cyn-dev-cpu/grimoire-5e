@@ -119,6 +119,21 @@ body{background:radial-gradient(ellipse at 12% 0%,#c08a3820,transparent 32%),rad
 .wizard-option-arrow{margin-left:auto;color:var(--gold);font-size:17px}
 @media(max-width:900px){.creation-intro-grid{grid-template-columns:1fr}.creation-picks{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.creation-picks,.picker-cards{grid-template-columns:1fr}.wizard-choice-tile{grid-template-columns:38px minmax(0,1fr) auto;padding:10px}.wizard-choice-icon{width:38px;height:38px}.wizard-choice-tile>.btn{font-size:10px;padding:7px 8px}}
+/* Interactive ability, skill and spell builder */
+.ability-method-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(110deg,#1a2b43,#111d30)}
+.ability-method-bar label{font-size:12px;font-weight:750;color:var(--gold2)}
+.ability-method-bar select{max-width:210px;margin:0}
+.ability-budget{margin-left:auto;color:var(--teal);font-size:12px;font-weight:750}
+.ability-enhanced select{font-size:22px;font-weight:800;text-align:center;text-align-last:center;color:var(--gold2);background:#0a1322;border:1px solid #405575;border-radius:10px;padding:8px;width:100%}
+.section-heading-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.spell-picker-launch{display:flex;align-items:center;gap:12px;margin:14px 0}
+.spell-picker-panel{margin:12px 0;padding:15px;border:1px solid #c99b4d66;border-radius:16px;background:linear-gradient(145deg,#17263b,#101a2c)}
+.spell-filter-row{display:grid;grid-template-columns:1fr 150px;gap:9px;margin:10px 0}
+.spell-picker-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:390px;overflow:auto}
+.spell-result{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--surface2);color:var(--text);text-align:left}
+.spell-result span{display:grid;gap:3px}.spell-result small{font-size:10px;color:var(--muted)}
+.spell-result b{color:var(--gold);font-size:18px}.spell-result.selected{border-color:var(--teal);background:#70d4c116}
+@media(max-width:600px){.spell-picker-results{grid-template-columns:1fr}.spell-filter-row{grid-template-columns:1fr}.ability-budget{width:100%;margin-left:0}}
 </style>
 </head>
 <body>
@@ -261,9 +276,24 @@ function chooseWizardOption(cat,index){
  if(cat==="background")c.background=simple;
  save();toast(`${x.name} ausgewählt`);renderSheet();
 }
+async function openSpellPicker(){
+ const host=$("spellPickerHost");if(!host)return;host.innerHTML='<p class="muted small">Lade Zauberliste …</p>';
+ try{
+  const spells=await loadCategory("spell");
+  host.innerHTML=`<div class="spell-picker-panel"><div class="picker-head"><div><strong>Zauberkompendium</strong><small>${spells.length} Zauber aus aktivierten Quellen</small></div><button class="icon-btn" id="closeSpellPicker">×</button></div><div class="spell-filter-row"><input id="spellSearch" type="search" placeholder="Zauber suchen …"><select id="spellLevel"><option value="all">Alle Grade</option><option value="0">Zaubertricks</option>${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}">Grad ${n}</option>`).join("")}</select></div><div class="spell-picker-results" id="spellResults"></div></div>`;
+  const draw=()=>{const q=$("spellSearch").value.toLowerCase(),level=$("spellLevel").value;const filtered=spells.filter(x=>(!q||`${x.name} ${sourceInfo(x)}`.toLowerCase().includes(q))&&(level==="all"||String(x.level??0)===level));$("spellResults").innerHTML=filtered.slice(0,120).map((x,i)=>`<button class="spell-result ${character().spells.some(y=>y.name===x.name&&y.source===sourceInfo(x))?"selected":""}" data-spell-index="${spells.indexOf(x)}"><span><strong>${esc(x.name)}</strong><small>${esc(sourceInfo(x))} · ${x.level===0?"Zaubertrick":"Grad "+x.level}</small></span><b>${character().spells.some(y=>y.name===x.name&&y.source===sourceInfo(x))?"✓":"+"}</b></button>`).join("")||'<p class="muted small">Keine passenden Zauber.</p>'};
+  $("spellSearch").oninput=draw;$("spellLevel").onchange=draw;$("spellResults").onclick=e=>{const b=e.target.closest("[data-spell-index]");if(!b)return;const x=spells[Number(b.dataset.spellIndex)],c=character(),i=c.spells.findIndex(y=>y.name===x.name&&y.source===sourceInfo(x));if(i>=0)c.spells.splice(i,1);else c.spells.push({name:x.name,source:sourceInfo(x),level:x.level,school:x.school,entries:x.entries});save();draw();toast(i>=0?"Zauber entfernt":"Zauber hinzugefügt")};
+  $("closeSpellPicker").onclick=()=>host.innerHTML="";draw();
+ }catch(e){host.innerHTML=`<div class="empty">Zauberliste konnte nicht geladen werden: ${esc(e.message)}</div>`}
+}
 function renderSheet(){
  const c=character(),pb=profBonus(c),initiative=abilityMod("dex",c),passive=10+derivedSkill(SKILLS.find(s=>s[0]==="perception"),c);
- const abilityHtml=ABILITIES.map(([k,n])=>`<div class="ability"><label>${n}</label><input type="number" min="1" max="30" data-ability="${k}" value="${Number(c.abilities[k]??10)}"><div class="modifier">${fmtMod(abilityMod(k,c))}</div></div>`).join("");
+ const method=c.abilityMethod||"pointbuy";
+ const standard=[15,14,13,12,10,8],scores=Object.values(c.abilities||{}).map(Number);
+ const pointCost=v=>({8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9}[Number(v)]??99);
+ const pointsSpent=scores.reduce((sum,v)=>sum+pointCost(v),0);
+ const abilityHtml=ABILITIES.map(([k,n])=>{const value=Number(c.abilities[k]??10);const options=(method==="standard"?standard:method==="pointbuy"?[8,9,10,11,12,13,14,15]:Array.from({length:23},(_,i)=>i+8));return `<div class="ability ability-enhanced"><label>${n}</label><select data-ability-score="${k}">${options.map(v=>`<option value="${v}" ${v===value?"selected":""}>${v}</option>`).join("")}</select><div class="modifier">${fmtMod(abilityMod(k,c))}</div></div>`}).join("");
+ const abilityControls=`<div class="ability-method-bar"><label for="abilityMethod">Attributsmethode</label><select id="abilityMethod"><option value="pointbuy" ${method==="pointbuy"?"selected":""}>27-Punkte-Kauf</option><option value="standard" ${method==="standard"?"selected":""}>Standardarray</option><option value="manual" ${method==="manual"?"selected":""}>Freie Eingabe</option></select><span class="ability-budget">${method==="pointbuy"?`${pointsSpent} / 27 Punkte verwendet`:method==="standard"?"15 · 14 · 13 · 12 · 10 · 8":"Manuelle Werte"}</span></div>`;
  const skills=SKILLS.map(s=>`<label class="skill"><input type="checkbox" data-skill="${s[0]}" ${c.skillProficiencies.includes(s[0])?"checked":""}><span>${s[1]} <span class="muted">(${s[2].toUpperCase()})</span></span><span>${fmtMod(derivedSkill(s,c))}</span></label>`).join("");
  const saves=ABILITIES.map(([k,n])=>`<label class="skill"><input type="checkbox" data-save="${k}" ${c.saveProficiencies.includes(k)?"checked":""}><span>${n}</span><span>${fmtMod(abilityMod(k,c)+(c.saveProficiencies.includes(k)?pb:0))}</span></label>`).join("");
  const choices=(arr,cat)=>arr.length?`<div class="list">${arr.map((x,i)=>`<div class="list-row"><div class="grow"><strong>${esc(x.name)}</strong><small>${esc(x.source||"")}${x.level!==undefined?` · Grad ${x.level}`:""}</small></div><button class="btn subtle" data-detail="${cat}:${i}">Details</button><button class="btn danger" data-remove="${cat}:${i}">×</button></div>`).join("")}</div>`:`<div class="empty">Noch nichts hinzugefügt. Öffne die Regelbibliothek, um Inhalte auszuwählen.</div>`;
@@ -284,13 +314,13 @@ function renderSheet(){
   <div class="stat"><div class="value">${passive}</div><div class="caption">Passive Wahrnehmung</div></div>
   <div class="stat"><div class="value">${c.speed||30} ft</div><div class="caption">Bewegung</div></div>
  </div>
- <div class="divider"></div><h3>Attribute</h3><div class="ability-grid">${abilityHtml}</div>
+ <div class="divider"></div><h3>Attribute</h3>${abilityControls}<div class="ability-grid">${abilityHtml}</div>
  <div class="divider"></div><div class="grid two">
   <div><h3>Kampfwerte</h3><div class="grid three">${field("hpMax","TP Maximum",c.hpMax,{type:"number",min:0,key:"hpMax"})}${field("hpCurrent","Aktuelle TP",c.hpCurrent,{type:"number",min:0,key:"hpCurrent"})}${field("tempHp","Temporäre TP",c.tempHp,{type:"number",min:0,key:"tempHp"})}${field("ac","Rüstungsklasse",c.ac,{type:"number",min:0,key:"ac"})}${field("speed","Bewegung (ft)",c.speed,{type:"number",min:0,key:"speed"})}${field("hitDice","Trefferwürfel",c.hitDice,{key:"hitDice"})}</div></div>
   <div><h3>Rettungswürfe</h3><div class="skill-grid">${saves}</div><div class="field" style="margin-top:12px">${field("pbOverride","Übungsbonus überschreiben (optional)",c.proficiencyOverride,{type:"number",min:0,key:"proficiencyOverride"})}</div></div>
  </div>
- <div class="divider"></div><h3>Fertigkeiten</h3><div class="skill-grid">${skills}</div>
- <div class="divider"></div><h3>Zauberwerte</h3><div class="grid three">${field("spellAbility","Zauberattribut (str/dex/con/int/wis/cha)",c.spellAbility,{key:"spellAbility"})}${field("spellSave","Zauberrettungswurf SG (optional)",c.spellSaveOverride,{type:"number",key:"spellSaveOverride"})}${field("spellAttack","Zauberangriffsbonus (optional)",c.spellAttackOverride,{type:"number",key:"spellAttackOverride"})}</div>
+ <div class="divider"></div><div class="section-heading-row"><div><h3>Fertigkeiten</h3><p class="muted small">Wähle deine geübten Fertigkeiten. Expertise verdoppelt den Übungsbonus.</p></div><span class="tag" id="skillCount">${c.skillProficiencies.length} geübt</span></div><div class="skill-grid">${skills}</div>
+ <div class="divider"></div><h3>Zauberwerte</h3><div class="grid three"><div class="field"><label for="spellAbilitySelect">Zauberattribut</label><select id="spellAbilitySelect"><option value="">Nicht festgelegt</option>${ABILITIES.map(([k,n])=>`<option value="${k}" ${c.spellAbility===k?"selected":""}>${n}</option>`).join("")}</select></div>${field("spellSave","Zauberrettungswurf SG (optional)",c.spellSaveOverride,{type:"number",key:"spellSaveOverride"})}${field("spellAttack","Zauberangriffsbonus (optional)",c.spellAttackOverride,{type:"number",key:"spellAttackOverride"})}</div><div class="spell-picker-launch"><button class="btn primary" id="openSpellPicker" type="button">✧ Zauber auswählen</button><span class="muted small">${c.spells.length} Zauber ausgewählt</span></div><div id="spellPickerHost"></div>
  <div class="divider"></div><h3>Ausgewählte Talente</h3>${choices(c.feats,"feats")}
  <div class="divider"></div><h3>Zauber</h3>${choices(c.spells,"spells")}
  <div class="divider"></div><h3>Features & Merkmale</h3>${choices(c.features,"features")}
@@ -315,8 +345,11 @@ function renderSheet(){
  if($("showWizard"))$("showWizard").onclick=()=>{wizardMode=true;creationStep=0;renderSheet()};
  $("view").querySelectorAll("[data-open-picker]").forEach(b=>b.onclick=()=>openWizardPicker(b.dataset.openPicker));
  $("view").querySelectorAll("[data-field]").forEach(el=>el.addEventListener("change",()=>{const k=el.dataset.field;if(k.endsWith("Name")){const key={raceName:"race",subraceName:"subrace",className:"class",subclassName:"subclass",backgroundName:"background"}[k];if(el.value.trim())c[key]={...(c[key]||{}),name:el.value.trim()};else c[key]=null}else c[k]=el.type==="number"?(el.value===""?"":Number(el.value)):el.value;save();if(["level","proficiencyOverride"].includes(k))renderSheet();else renderHeader()}));
- $("view").querySelectorAll("[data-ability]").forEach(el=>el.addEventListener("change",()=>{c.abilities[el.dataset.ability]=Number(el.value)||1;save();renderSheet()}));
- $("view").querySelectorAll("[data-skill]").forEach(el=>el.addEventListener("change",()=>{const a=c.skillProficiencies,k=el.dataset.skill;c.skillProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
+ const methodSelect=$("abilityMethod");if(methodSelect)methodSelect.onchange=()=>{c.abilityMethod=methodSelect.value;if(c.abilityMethod==="standard"){const vals=[15,14,13,12,10,8];ABILITIES.forEach(([k],i)=>c.abilities[k]=vals[i])}save();renderSheet()};
+ $("view").querySelectorAll("[data-ability-score]").forEach(el=>el.onchange=()=>{const key=el.dataset.abilityScore,value=Number(el.value),method=c.abilityMethod||"pointbuy";if(method==="pointbuy"){const cost=v=>({8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9}[v]??99);const spent=ABILITIES.reduce((n,[k])=>n+cost(Number(k===key?value:c.abilities[k]??10)),0);if(spent>27){toast("Der 27-Punkte-Kauf ist ausgeschöpft.");renderSheet();return}}if(method==="standard"&&ABILITIES.some(([k])=>k!==key&&Number(c.abilities[k])===value)){toast("Jeder Wert des Standardarrays darf nur einmal vergeben werden.");renderSheet();return}c.abilities[key]=value;save();renderSheet()});
+ $("spellAbilitySelect")?.addEventListener("change",e=>{c.spellAbility=e.target.value;save();renderSheet()});
+ $("openSpellPicker")?.addEventListener("click",()=>openSpellPicker());
+ $("view").querySelectorAll("[data-skill]").forEach(el=>el.addEventListener("change",()=>{const a=c.skillProficiencies,k=el.dataset.skill;c.skillProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);if(!el.checked)c.expertise=(c.expertise||[]).filter(x=>x!==k);save();renderSheet()}));
  $("view").querySelectorAll("[data-save]").forEach(el=>el.addEventListener("change",()=>{const a=c.saveProficiencies,k=el.dataset.save;c.saveProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
  $("view").querySelectorAll("[data-remove]").forEach(el=>el.addEventListener("click",()=>{const [k,i]=el.dataset.remove.split(":");c[k].splice(Number(i),1);save();renderSheet()}));
  $("view").querySelectorAll("[data-detail]").forEach(el=>el.addEventListener("click",()=>{const [k,i]=el.dataset.detail.split(":");showDetails(c[k][Number(i)])}));
