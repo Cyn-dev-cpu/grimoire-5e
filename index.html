@@ -220,6 +220,16 @@ img,svg,canvas{max-width:100%}
 <div class="toast" id="toast"></div>
 <script>
 "use strict";
+// Keep fatal startup errors visible instead of leaving an empty workspace.
+window.addEventListener("error",event=>{
+ const host=document.getElementById("view");
+ if(host)host.innerHTML='<section class="panel"><h2>Grimoire konnte nicht starten</h2><p class="muted">Ein JavaScript-Fehler hat den Start unterbrochen:</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere;color:var(--red)"></pre><button class="btn primary" onclick="location.reload()">Neu laden</button></section>';
+ const pre=host?.querySelector("pre");if(pre)pre.textContent=(event.message||"Unbekannter Fehler")+" · "+(event.filename||"")+" · Zeile "+(event.lineno||"?");
+});
+window.addEventListener("unhandledrejection",event=>{
+ const host=document.getElementById("view");
+ if(host){host.innerHTML='<section class="panel"><h2>Fehler beim Laden</h2><p class="muted">Eine Hintergrundoperation ist fehlgeschlagen:</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere;color:var(--red)"></pre></section>';host.querySelector("pre").textContent=String(event.reason?.stack||event.reason||"Unbekannter Fehler")}
+});
 const DATA_DEFAULT="https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data";
 const BREW_API="https://api.github.com/repos/TheGiddyLimit/homebrew/git/trees/master?recursive=1";
 const BREW_RAW="https://raw.githubusercontent.com/TheGiddyLimit/homebrew/master/";
