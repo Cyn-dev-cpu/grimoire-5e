@@ -1,0 +1,4 @@
+Unofficial fan-made project. Not affiliated with Wizards of the Coast or 5e.tools.
+This repository contains application code only; it does not bundle D&D rulebook text.
+External JSON data is fetched at runtime from the configured 5etools-compatible repositories.
+Respect the licenses and terms of each external data source and the rights of third-party homebrew authors.

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="D&D 5e Character Manager – Charaktere erstellen, verwalten und mit 5e.tools-Daten erweitern.">
+<title>Grimoire — D&D Character Manager</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎲%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--surface:#111a2d;--surface2:#17233a;--surface3:#1d2b45;--line:#293955;--text:#edf2fa;--muted:#9aabc4;--gold:#e4b96b;--gold2:#f2d69a;--teal:#67c8b6;--red:#ef8585;--shadow:0 18px 55px #0005;--radius:18px}
+:root[data-theme="light"]{color-scheme:light;--bg:#f1f3f7;--surface:#fff;--surface2:#f7f8fb;--surface3:#edf0f6;--line:#d9dfeb;--text:#172239;--muted:#61708a;--gold:#9b6b1e;--gold2:#795013;--teal:#197b6c;--red:#bb4848;--shadow:0 15px 45px #26334a12}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 10% -10%,#a77a2925,transparent 38%),var(--bg);color:var(--text);font:15px/1.55 "DM Sans",system-ui,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--gold)}
+.app{display:grid;grid-template-columns:258px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;padding:25px 17px;background:color-mix(in srgb,var(--surface) 92%,transparent);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:22px;z-index:5;backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:12px;padding:4px 8px}.brand-mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#f0cf8e,#a8752f);display:grid;place-items:center;color:#1b1b20;font-size:23px;box-shadow:0 8px 22px #b8863b33}.brand strong{font:800 19px "Playfair Display",serif;letter-spacing:.02em}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.19em;text-transform:uppercase}
+.nav-label{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--muted);padding:0 11px;margin-bottom:5px}.nav{display:grid;gap:5px}.nav button{width:100%;border:0;border-radius:12px;background:transparent;color:var(--muted);text-align:left;padding:11px 13px;display:flex;align-items:center;gap:12px;font-weight:600;transition:.18s}.nav button:hover{background:var(--surface2);color:var(--text)}.nav button.active{background:linear-gradient(100deg,#c99b4d25,#c99b4d08);color:var(--gold2);box-shadow:inset 3px 0 var(--gold)}.nav .ico{width:21px;text-align:center;font-size:17px}
+.side-bottom{margin-top:auto;display:grid;gap:10px}.sync-pill{border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:12px}.sync-pill b{color:var(--teal)}
+.main{min-width:0;padding:28px clamp(16px,4vw,56px) 60px;max-width:1600px;width:100%;margin:0 auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}.eyebrow{color:var(--gold);font:500 10px "DM Mono",monospace;letter-spacing:.19em;text-transform:uppercase}.page-title{font:700 clamp(27px,4vw,40px)/1.1 "Playfair Display",serif;margin:5px 0 0;letter-spacing:-.03em}.top-actions{display:flex;gap:8px;align-items:center}.icon-btn,.btn,.select-btn{border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text);padding:9px 12px}.icon-btn{width:42px;height:42px;font-size:17px}.btn.primary{background:linear-gradient(135deg,#e5bd74,#bd8738);border-color:#d8a957;color:#1b1b20;font-weight:800}.btn.subtle{background:var(--surface2)}.btn.danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}.btn:disabled{opacity:.45;cursor:not-allowed}.btn:hover,.icon-btn:hover{filter:brightness(1.12);transform:translateY(-1px)}.mobile-brand{display:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(16px,2.6vw,27px);box-shadow:var(--shadow);margin-bottom:18px;min-width:0}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px}.panel h2{font:700 22px "Playfair Display",serif;margin:0}.panel h3{font-size:15px;margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:12px}.mono{font:12px "DM Mono",monospace}.gold{color:var(--gold)}.grid{display:grid;gap:14px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 0 6px}input,select,textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none}textarea{min-height:95px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px #d5a64b22}.field{min-width:0}.field + .field{margin-top:12px}
+.stat{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:13px;text-align:center}.stat .value{font:700 25px "Playfair Display",serif;color:var(--gold2)}.stat .caption{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-top:2px}
+.ability-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}.ability{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:10px 7px;text-align:center}.ability label{font-size:10px;letter-spacing:.08em;text-transform:uppercase}.ability input{text-align:center;padding:8px 2px;font:700 22px "Playfair Display",serif}.ability .modifier{font:700 17px "DM Mono",monospace;color:var(--gold);margin-top:5px}
+.skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px}.skill{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.skill input{width:16px;height:16px;accent-color:var(--gold)}.skill span:last-child{margin-left:auto;font:12px "DM Mono",monospace;color:var(--gold)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.toolbar input{flex:1;min-width:190px}.toolbar select{width:auto;min-width:140px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}.content-card{border:1px solid var(--line);border-radius:14px;background:var(--surface2);padding:15px;display:flex;flex-direction:column;gap:9px;min-height:160px}.content-card h3{font:700 17px "Playfair Display",serif;margin:0}.content-card .meta{font:11px "DM Mono",monospace;color:var(--muted)}.content-card p{font-size:12px;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.content-card .card-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto}
+.tag{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:10px;color:var(--muted);white-space:nowrap}.tag.goldtag{color:var(--gold);border-color:#c99b4d66}.tag.homebrew{color:var(--teal);border-color:#67c8b655}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}.empty .big{font-size:30px;margin-bottom:8px}
+.list{display:grid;gap:8px}.list-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}.list-row .grow{flex:1;min-width:0}.list-row strong{display:block}.list-row small{color:var(--muted)}
+.source-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;max-height:420px;overflow:auto;padding:2px}.source-option{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);font-size:12px;color:var(--text);margin:0}.source-option input{width:15px;height:15px;margin:2px 0 0;accent-color:var(--gold)}.source-option small{display:block;color:var(--muted);font:10px "DM Mono",monospace}
+.divider{height:1px;background:var(--line);margin:18px 0}.notice{border:1px solid #c99b4d55;background:#c99b4d10;border-radius:12px;padding:12px 14px;color:var(--muted);font-size:12px}.notice strong{color:var(--gold)}.status{font-size:12px;color:var(--muted);min-height:18px}.progress{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--gold);width:0;transition:width .2s}
+.modal-backdrop{position:fixed;inset:0;background:#050914bb;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.open{display:flex}.modal{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}.modal pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);padding:14px;border-radius:10px;font-size:12px;max-height:45vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.modal h2{font:700 24px "Playfair Display",serif;margin:0}.modal-content{color:var(--muted);font-size:13px;line-height:1.7}.modal-content ul{padding-left:20px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--surface3);border:1px solid var(--line);border-radius:12px;padding:10px 15px;box-shadow:var(--shadow);z-index:50;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none!important}.right{margin-left:auto}.danger-text{color:var(--red)}.character-switch{min-width:180px;max-width:260px}
+@media(max-width:900px){.app{grid-template-columns:76px minmax(0,1fr)}.sidebar{padding:20px 10px}.brand{justify-content:center;padding:0}.brand-copy,.nav-label,.nav button .nav-text,.side-bottom .sync-pill{display:none}.nav button{justify-content:center;padding:13px 8px}.nav button .ico{font-size:20px}.side-bottom{justify-items:center}.main{padding:22px 18px 50px}}
+@media(max-width:620px){.app{display:block}.sidebar{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;height:auto;padding:7px max(8px,env(safe-area-inset-left)) calc(7px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);display:block}.brand,.nav-label,.side-bottom{display:none}.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}.nav button{display:flex;flex-direction:column;gap:2px;padding:6px 2px;font-size:10px;border-radius:9px}.nav button .nav-text{display:block!important}.nav button .ico{font-size:17px}.main{padding:18px 13px calc(100px + env(safe-area-inset-bottom))}.topbar{margin-bottom:18px}.page-title{font-size:28px}.grid.two,.grid.three,.grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}.ability-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-grid{grid-template-columns:1fr}.panel{border-radius:15px}.top-actions .btn .full-label{display:none}.character-switch{min-width:0;width:135px}.toolbar select{width:100%}}
+@media print{body{background:white;color:#111}.sidebar,.topbar,.no-print{display:none!important}.app{display:block}.main{padding:0;max-width:none}.panel{box-shadow:none;border:1px solid #bbb;break-inside:avoid;background:white;color:#111}.stat,.ability{background:#f5f5f5;color:#111}.ability input{color:#111}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+ <div class="brand"><div class="brand-mark">✦</div><div class="brand-copy"><strong>Grimoire</strong><small>5e character studio</small></div></div>
+ <div><div class="nav-label">Workspace</div><nav class="nav" id="nav">
+  <button data-view="sheet" class="active"><span class="ico">▤</span><span class="nav-text">Charakterbogen</span></button>
+  <button data-view="library"><span class="ico">⌕</span><span class="nav-text">Regelbibliothek</span></button>
+  <button data-view="sources"><span class="ico">◈</span><span class="nav-text">Quellen & Homebrew</span></button>
+  <button data-view="settings"><span class="ico">⚙</span><span class="nav-text">Einstellungen</span></button>
+ </nav></div>
+ <div class="side-bottom"><div class="sync-pill"><b>● Lokal gespeichert</b><br>Deine Daten bleiben in diesem Browser.</div><span class="small muted">Unofficial fan-made tool</span></div>
+</aside>
+<main class="main">
+ <header class="topbar">
+  <div><div class="eyebrow" id="eyebrow">Character workspace / 01</div><h1 class="page-title" id="pageTitle">Charakterbogen</h1></div>
+  <div class="top-actions">
+   <select id="characterSwitch" class="character-switch" aria-label="Charakter auswählen"></select>
+   <button class="icon-btn" id="themeToggle" title="Darstellung wechseln" aria-label="Darstellung wechseln">☼</button>
+   <button class="btn primary" id="quickSave">Speichern</button>
+  </div>
+ </header>
+ <div id="view"></div>
+</main>
+</div>
+<div class="modal-backdrop" id="modal"><div class="modal"><div class="modal-head"><h2 id="modalTitle">Details</h2><button class="icon-btn" id="modalClose" aria-label="Schließen">×</button></div><div class="divider"></div><div class="modal-content" id="modalBody"></div><div class="row" style="justify-content:flex-end;margin-top:18px"><button class="btn subtle" id="modalDone">Schließen</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const DATA_DEFAULT="https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data";
+const BREW_API="https://api.github.com/repos/TheGiddyLimit/homebrew/git/trees/master?recursive=1";
+const BREW_RAW="https://raw.githubusercontent.com/TheGiddyLimit/homebrew/master/";
+const ABILITIES=[["str","Stärke"],["dex","Geschicklichkeit"],["con","Konstitution"],["int","Intelligenz"],["wis","Weisheit"],["cha","Charisma"]];
+const SKILLS=[["acrobatics","Akrobatik","dex"],["animalHandling","Mit Tieren umgehen","wis"],["arcana","Arkane Kunde","int"],["athletics","Athletik","str"],["deception","Täuschen","cha"],["history","Geschichte","int"],["insight","Motiv erkennen","wis"],["intimidation","Einschüchtern","cha"],["investigation","Nachforschungen","int"],["medicine","Heilkunde","wis"],["nature","Naturkunde","int"],["perception","Wahrnehmung","wis"],["performance","Auftreten","cha"],["persuasion","Überzeugen","cha"],["religion","Religion","int"],["sleightOfHand","Fingerfertigkeit","dex"],["stealth","Heimlichkeit","dex"],["survival","Überlebenskunst","wis"]];
+const CATEGORIES=[
+ ["race","Spezies","races.json","race"],["subrace","Unterspezies","races.json","subrace"],["class","Klassen","class/index.json","class"],["subclass","Unterklassen","class/index.json","subclass"],
+ ["background","Hintergründe","backgrounds.json","background"],["feat","Talente","feats.json","feat"],["spell","Zauber","spells/index.json","spell"],
+ ["item","Ausrüstung & Gegenstände","items.json","item"],["optionalfeature","Optionale Features","optionalfeatures.json","optionalfeature"],
+ ["classFeature","Klassenfeatures","class/index.json","classFeature"],["subclassFeature","Unterklassenfeatures","class/index.json","subclassFeature"]
+];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+const blankCharacter=()=>({id:uid(),name:"Neuer Abenteurer",edition:"2024",level:1,race:null,subrace:null,class:null,subclass:null,background:null,alignment:"",experience:0,abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},saveProficiencies:[],skillProficiencies:[],expertise:[],hpMax:10,hpCurrent:10,tempHp:0,ac:10,speed:30,hitDice:"1d8",deathSuccess:0,deathFailure:0,spellAbility:"",spellSaveOverride:"",spellAttackOverride:"",proficiencyOverride:"",features:[],feats:[],spells:[],items:[],notes:"",personality:"",ideals:"",bonds:"",flaws:"",attacks:""});
+const defaultState=()=>({dataBase:DATA_DEFAULT,activeSources:null,homebrew:[],characters:[blankCharacter()],activeId:null,theme:"dark"});
+let state=defaultState(),cache=new Map(),brewCatalog=[],currentView="sheet",libraryCategory="race",libraryItems=[],librarySearch="",librarySource="all",busy=false;
+try{const saved=JSON.parse(localStorage.getItem("grimoire5e")||"null");if(saved&&typeof saved==="object")state={...defaultState(),...saved};}catch(e){}
+if(!state.characters?.length)state.characters=[blankCharacter()];
+if(!state.activeId||!state.characters.some(c=>c.id===state.activeId))state.activeId=state.characters[0].id;
+let character=()=>state.characters.find(c=>c.id===state.activeId)||state.characters[0];
+const save=()=>{try{localStorage.setItem("grimoire5e",JSON.stringify(state));setStatus("Lokal gespeichert")}catch(e){setStatus("Speicher voll – exportiere Homebrew/Charaktere als Backup");toast("Browser-Speicherlimit erreicht. Bitte exportiere deine Daten.")}};
+function setStatus(t){const n=$("saveStatus");if(n)n.textContent=t}
+function toast(t){const n=$("toast");n.textContent=t;n.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>n.classList.remove("show"),2400)}
+function mod(v){return Math.floor((Number(v||0)-10)/2)}
+function fmtMod(v){return (v>=0?"+":"")+v}
+function profBonus(c=character()){return Number(c.proficiencyOverride)||Math.ceil(Math.max(1,Math.min(20,Number(c.level)||1))/4)+1}
+function abilityMod(k,c=character()){return mod(c.abilities?.[k]??10)}
+function derivedSkill(skill,c=character()){const p=profBonus(c),base=abilityMod(skill[2],c);return base+(c.expertise?.includes(skill[0])?p*2:c.skillProficiencies?.includes(skill[0])?p:0)}
+function escText(x){if(typeof x==="string")return x;if(typeof x==="number")return String(x);if(Array.isArray(x))return x.map(escText).filter(Boolean).join("\n");if(x&&typeof x==="object"){if(x.type==="entries"||x.type==="section")return [x.name,escText(x.entries)].filter(Boolean).join("\n");if(x.type==="list")return (x.items||[]).map(escText).join("\n");if(x.type==="item")return [x.name,escText(x.entry)].filter(Boolean).join(": ");if(x.entry)return escText(x.entry);if(x.entries)return escText(x.entries);if(x.name)return x.name;}return ""}
+function flattenEntries(x){return escText(x).replace(/\{@(.*?)\}/g,(_,v)=>v.split("|")[0].replace(/^[a-z]+ /,"")).replace(/<[^>]*>/g,"")}
+async function fetchJson(url){if(cache.has(url))return cache.get(url);const p=fetch(url).then(r=>{if(!r.ok)throw Error(`HTTP ${r.status} bei ${url}`);return r.json()}).catch(e=>{cache.delete(url);throw e});cache.set(url,p);return p}
+function dataUrl(path){return state.dataBase.replace(/\/+$/,"")+"/"+path}
+function is2024(x){return x?.edition==="one"||x?.source==="XPHB"||x?.source==="XDMG"||x?.source==="XMM"}
+function editionOk(x){return character().edition==="2024"?is2024(x):!is2024(x)}
+function sourceOk(x){const src=x?.source||"Unknown";return !Array.isArray(state.activeSources)||state.activeSources.includes(src)}
+function selectedBrew(){return state.homebrew.filter(x=>x.enabled)}
+async function getBrewData(b){if(b.data)return b.data;if(!b.url)throw Error("Homebrew-Datei hat keine URL");b.data=await fetchJson(b.url);return b.data}
+async function getActiveBrews(){const out=[];for(const b of selectedBrew()){try{out.push({meta:b,data:await getBrewData(b)})}catch(e){console.warn(e)}}return out}
+function getArray(data,key){return Array.isArray(data?.[key])?data[key]:[]}
+function resolveCopies(items){const by=new Map(items.map(x=>[`${x.name}|${x.source}`,x]));return items.map(x=>{if(!x._copy)return x;const base=by.get(`${x._copy.name}|${x._copy.source}`);return base?{...base,...x,_copy:undefined}:x})}
+function sourceNamesFrom(data){return (data?._meta?.sources||[]).map(s=>s.json).filter(Boolean)}
+async function getClassFiles(){const idx=await fetchJson(dataUrl("class/index.json"));return Object.entries(idx).map(([key,path])=>({key,path}))}
+async function loadCategory(cat){
+ const spec=CATEGORIES.find(x=>x[0]===cat);if(!spec)throw Error("Unbekannte Kategorie");
+ const [,label,path,key]=spec;let official=[];
+ if(cat==="class"||cat==="subclass"||cat==="classFeature"||cat==="subclassFeature"){
+  const files=await getClassFiles();
+  const results=await Promise.all(files.map(async f=>{try{return await fetchJson(dataUrl("class/"+f.path))}catch(e){return null}}));
+  for(const d of results.filter(Boolean))official.push(...getArray(d,key));
+ }else if(cat==="spell"){
+  const idx=await fetchJson(dataUrl("spells/index.json"));
+  const entries=await Promise.all(Object.entries(idx).map(async([src,file])=>{try{const d=await fetchJson(dataUrl("spells/"+file));return getArray(d,"spell").map(x=>({...x,_indexSource:src}))}catch(e){return []}}));
+  official=entries.flat();
+ }else{
+  const d=await fetchJson(dataUrl(path));official=getArray(d,key);
+  if(cat==="item")official=[...official,...getArray(d,"baseitem")];
+ }
+ const brews=await getActiveBrews();
+ const home=brews.flatMap(b=>getArray(b.data,key).map(x=>({...x,_homebrewName:b.meta.name,_homebrew:true})));
+ let all=resolveCopies([...official,...home]);
+ all=all.filter(x=>sourceOk(x)&&editionOk(x));
+ if(cat==="classFeature"||cat==="subclassFeature")all=all.filter(x=>x.name);
+ return all;
+}
+function sourceInfo(x){return x?.source||x?._indexSource||"Unknown source"}
+function categoryIcon(cat){return ({race:"🧬",class:"⚔",subclass:"✦",background:"📜",feat:"◇",spell:"✧",item:"⚒",optionalfeature:"✺",classFeature:"☼",subclassFeature:"✧"})[cat]||"◈"}
+function sourceBadge(x){return x._homebrew?'<span class="tag homebrew">Homebrew</span>':`<span class="tag">${esc(sourceInfo(x))}</span>`}
+function renderNav(){document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===currentView))}
+function setView(v){currentView=v;renderNav();renderView();window.scrollTo({top:0,behavior:"smooth"})}
+function renderHeader(){const c=character();$("characterSwitch").innerHTML=state.characters.map(x=>`<option value="${esc(x.id)}">${esc(x.name||"Unbenannt")}</option>`).join("");$("characterSwitch").value=c.id}
+function renderView(){renderHeader();const titles={sheet:["Character sheet","Charakterbogen"],library:["Compendium","Regelbibliothek"],sources:["Content management","Quellen & Homebrew"],settings:["Preferences","Einstellungen"]};$("eyebrow").textContent=titles[currentView][0]+" / "+String(["sheet","library","sources","settings"].indexOf(currentView)+1).padStart(2,"0");$("pageTitle").textContent=titles[currentView][1];({sheet:renderSheet,library:renderLibrary,sources:renderSources,settings:renderSettings})[currentView]()}
+function panel(title,sub,body,actions=""){return `<section class="panel"><div class="panel-head"><div><h2>${title}</h2>${sub?`<div class="muted small">${sub}</div>`:""}</div>${actions}</div>${body}</section>`}
+function field(id,label,value,opts={}){return `<div class="field"><label for="${id}">${label}</label>${opts.area?`<textarea id="${id}" data-field="${opts.key||id}">${esc(value)}</textarea>`:`<input id="${id}" data-field="${opts.key||id}" type="${opts.type||"text"}" value="${esc(value)}" ${opts.min!==undefined?`min="${opts.min}"`:""} ${opts.max!==undefined?`max="${opts.max}"`:""}>`}</div>`}
+function renderSheet(){
+ const c=character(),pb=profBonus(c),initiative=abilityMod("dex",c),passive=10+derivedSkill(SKILLS.find(s=>s[0]==="perception"),c);
+ const abilityHtml=ABILITIES.map(([k,n])=>`<div class="ability"><label>${n}</label><input type="number" min="1" max="30" data-ability="${k}" value="${Number(c.abilities[k]??10)}"><div class="modifier">${fmtMod(abilityMod(k,c))}</div></div>`).join("");
+ const skills=SKILLS.map(s=>`<label class="skill"><input type="checkbox" data-skill="${s[0]}" ${c.skillProficiencies.includes(s[0])?"checked":""}><span>${s[1]} <span class="muted">(${s[2].toUpperCase()})</span></span><span>${fmtMod(derivedSkill(s,c))}</span></label>`).join("");
+ const saves=ABILITIES.map(([k,n])=>`<label class="skill"><input type="checkbox" data-save="${k}" ${c.saveProficiencies.includes(k)?"checked":""}><span>${n}</span><span>${fmtMod(abilityMod(k,c)+(c.saveProficiencies.includes(k)?pb:0))}</span></label>`).join("");
+ const choices=(arr,cat)=>arr.length?`<div class="list">${arr.map((x,i)=>`<div class="list-row"><div class="grow"><strong>${esc(x.name)}</strong><small>${esc(x.source||"")}${x.level!==undefined?` · Grad ${x.level}`:""}</small></div><button class="btn subtle" data-detail="${cat}:${i}">Details</button><button class="btn danger" data-remove="${cat}:${i}">×</button></div>`).join("")}</div>`:`<div class="empty">Noch nichts hinzugefügt. Öffne die Regelbibliothek, um Inhalte auszuwählen.</div>`;
+ const body=`
+ <div class="grid two">
+  <div>${field("charName","Charaktername",c.name,{key:"name"})}<div class="grid two">${field("charLevel","Stufe",c.level,{type:"number",min:1,max:20,key:"level"})}${field("charXp","Erfahrungspunkte",c.experience,{type:"number",min:0,key:"experience"})}</div></div>
+  <div class="grid two">${field("charRace","Spezies",c.race?.name||"",{key:"raceName"})}${field("charSubrace","Unterspezies",c.subrace?.name||"",{key:"subraceName"})}${field("charClass","Klasse",c.class?.name||"",{key:"className"})}${field("charSubclass","Unterklasse",c.subclass?.name||"",{key:"subclassName"})}${field("charBackground","Hintergrund",c.background?.name||"",{key:"backgroundName"})}</div>
+ </div>
+ <div class="grid four" style="margin-top:16px">
+  <div class="stat"><div class="value">${pb}</div><div class="caption">Übungsbonus</div></div>
+  <div class="stat"><div class="value">${fmtMod(initiative)}</div><div class="caption">Initiative</div></div>
+  <div class="stat"><div class="value">${passive}</div><div class="caption">Passive Wahrnehmung</div></div>
+  <div class="stat"><div class="value">${c.speed||30} ft</div><div class="caption">Bewegung</div></div>
+ </div>
+ <div class="divider"></div><h3>Attribute</h3><div class="ability-grid">${abilityHtml}</div>
+ <div class="divider"></div><div class="grid two">
+  <div><h3>Kampfwerte</h3><div class="grid three">${field("hpMax","TP Maximum",c.hpMax,{type:"number",min:0,key:"hpMax"})}${field("hpCurrent","Aktuelle TP",c.hpCurrent,{type:"number",min:0,key:"hpCurrent"})}${field("tempHp","Temporäre TP",c.tempHp,{type:"number",min:0,key:"tempHp"})}${field("ac","Rüstungsklasse",c.ac,{type:"number",min:0,key:"ac"})}${field("speed","Bewegung (ft)",c.speed,{type:"number",min:0,key:"speed"})}${field("hitDice","Trefferwürfel",c.hitDice,{key:"hitDice"})}</div></div>
+  <div><h3>Rettungswürfe</h3><div class="skill-grid">${saves}</div><div class="field" style="margin-top:12px">${field("pbOverride","Übungsbonus überschreiben (optional)",c.proficiencyOverride,{type:"number",min:0,key:"proficiencyOverride"})}</div></div>
+ </div>
+ <div class="divider"></div><h3>Fertigkeiten</h3><div class="skill-grid">${skills}</div>
+ <div class="divider"></div><h3>Zauberwerte</h3><div class="grid three">${field("spellAbility","Zauberattribut (str/dex/con/int/wis/cha)",c.spellAbility,{key:"spellAbility"})}${field("spellSave","Zauberrettungswurf SG (optional)",c.spellSaveOverride,{type:"number",key:"spellSaveOverride"})}${field("spellAttack","Zauberangriffsbonus (optional)",c.spellAttackOverride,{type:"number",key:"spellAttackOverride"})}</div>
+ <div class="divider"></div><h3>Ausgewählte Talente</h3>${choices(c.feats,"feats")}
+ <div class="divider"></div><h3>Zauber</h3>${choices(c.spells,"spells")}
+ <div class="divider"></div><h3>Features & Merkmale</h3>${choices(c.features,"features")}
+ <div class="divider"></div><h3>Ausrüstung</h3>${choices(c.items,"items")}
+ <div class="divider"></div><div class="grid two">${field("attacks","Angriffe & Waffen",c.attacks,{area:true,key:"attacks"})}${field("notes","Notizen",c.notes,{area:true,key:"notes"})}${field("personality","Persönlichkeit",c.personality,{area:true,key:"personality"})}${field("ideals","Ideale",c.ideals,{area:true,key:"ideals"})}${field("bonds","Bindungen",c.bonds,{area:true,key:"bonds"})}${field("flaws","Makel",c.flaws,{area:true,key:"flaws"})}</div>
+ <div class="row no-print"><button class="btn primary" id="printSheet">Bogen drucken / PDF</button><button class="btn subtle" id="exportCharacter">Charakter exportieren</button><button class="btn subtle" id="rollD20">W20 würfeln</button><button class="btn danger" id="deleteCharacter">Charakter löschen</button></div>`;
+ $("view").innerHTML=panel("Dein Abenteuer beginnt", "Alle Werte lassen sich manuell anpassen. Abgeleitete Werte werden live neu berechnet.",body,`<span class="tag goldtag">${c.edition} rules</span>`);
+ $("view").querySelectorAll("[data-field]").forEach(el=>el.addEventListener("change",()=>{const k=el.dataset.field;if(k.endsWith("Name")){const key={raceName:"race",subraceName:"subrace",className:"class",subclassName:"subclass",backgroundName:"background"}[k];if(el.value.trim())c[key]={...(c[key]||{}),name:el.value.trim()};else c[key]=null}else c[k]=el.type==="number"?(el.value===""?"":Number(el.value)):el.value;save();if(["level","proficiencyOverride"].includes(k))renderSheet();else renderHeader()}));
+ $("view").querySelectorAll("[data-ability]").forEach(el=>el.addEventListener("change",()=>{c.abilities[el.dataset.ability]=Number(el.value)||1;save();renderSheet()}));
+ $("view").querySelectorAll("[data-skill]").forEach(el=>el.addEventListener("change",()=>{const a=c.skillProficiencies,k=el.dataset.skill;c.skillProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
+ $("view").querySelectorAll("[data-save]").forEach(el=>el.addEventListener("change",()=>{const a=c.saveProficiencies,k=el.dataset.save;c.saveProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
+ $("view").querySelectorAll("[data-remove]").forEach(el=>el.addEventListener("click",()=>{const [k,i]=el.dataset.remove.split(":");c[k].splice(Number(i),1);save();renderSheet()}));
+ $("view").querySelectorAll("[data-detail]").forEach(el=>el.addEventListener("click",()=>{const [k,i]=el.dataset.detail.split(":");showDetails(c[k][Number(i)])}));
+ $("printSheet").onclick=()=>window.print();$("exportCharacter").onclick=()=>downloadJson(c,`${slug(c.name)}.json`);$("rollD20").onclick=()=>toast("W20: "+(1+Math.floor(Math.random()*20)));$("deleteCharacter").onclick=()=>deleteCharacter();
+}
+function slug(s){return String(s||"character").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"character"}
+function downloadJson(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+function showDetails(x){
+ $("modalTitle").textContent=x.name||"Details";
+ const meta=[x.source?"Quelle: "+x.source:"",x.level!==undefined?"Zaubergrad: "+x.level:"",x.school?"Schule: "+x.school:"",x._homebrew?"Homebrew: "+x._homebrewName:""].filter(Boolean).join(" · ");
+ const entries=flattenEntries(x.entries||x.entriesHigherLevel||x.description||x.entry||"");
+ const safe=esc(entries||"Für diesen Eintrag sind keine Beschreibungstexte im geladenen Datensatz vorhanden.");
+ $("modalBody").innerHTML=`<p>${esc(meta)}</p><p>${safe.replace(/\n/g,"<br>")}</p><details><summary>Technische JSON-Daten</summary><pre>${esc(JSON.stringify(x,null,2))}</pre></details>`;
+ $("modal").classList.add("open");
+}
+function renderLibrary(){
+ const cats=CATEGORIES.map(([id,label])=>`<option value="${id}" ${libraryCategory===id?"selected":""}>${label}</option>`).join("");
+ const body=`<div class="toolbar"><select id="categorySelect">${cats}</select><input id="librarySearch" type="search" placeholder="Name oder Quelle suchen …" value="${esc(librarySearch)}"><select id="sourceFilter"><option value="all">Alle Quellen</option></select><button class="btn primary" id="loadLibrary">Laden</button></div><div class="row" style="margin:8px 0 14px"><span class="status" id="libraryStatus">Wähle eine Kategorie und lade Inhalte.</span><span class="right small muted" id="resultCount"></span></div><div class="progress"><i id="loadProgress"></i></div><div class="cards" id="libraryCards" style="margin-top:14px"></div><div class="notice" style="margin-top:16px">Inhalte werden bei Bedarf direkt aus dem gewählten 5e.tools-Datenordner geladen. Die Bibliothek zeigt die Daten deiner aktivierten Quellen und Homebrew-Werke.</div>`;
+ $("view").innerHTML=panel("Regelbibliothek","Durchsuche Inhalte und füge sie deinem aktiven Charakter hinzu.",body);
+ $("categorySelect").onchange=e=>{libraryCategory=e.target.value;libraryItems=[];renderLibrary()};
+ $("librarySearch").oninput=e=>{librarySearch=e.target.value;drawLibraryCards()};
+ $("loadLibrary").onclick=()=>loadLibrary();
+ $("sourceFilter").onchange=e=>{librarySource=e.target.value;drawLibraryCards()};
+ if(libraryItems.length)fillSourceFilter();
+}
+async function loadLibrary(){
+ const status=$("libraryStatus"),progress=$("loadProgress"),cards=$("libraryCards");status.textContent="Lade Daten …";cards.innerHTML="";progress.style.width="15%";
+ try{libraryItems=await loadCategory(libraryCategory);progress.style.width="100%";status.textContent=`${libraryItems.length} Einträge geladen.`;fillSourceFilter();drawLibraryCards()}
+ catch(e){status.textContent="Fehler beim Laden: "+e.message;cards.innerHTML=`<div class="empty">Daten konnten nicht geladen werden.<br>Prüfe die Datenbasis und deine Internetverbindung.</div>`;console.error(e)}
+}
+function fillSourceFilter(){const sel=$("sourceFilter");if(!sel)return;const sources=[...new Set(libraryItems.map(sourceInfo))].sort();sel.innerHTML='<option value="all">Alle Quellen</option>'+sources.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");sel.value=sources.includes(librarySource)?librarySource:"all";librarySource=sel.value}
+function drawLibraryCards(){
+ const cards=$("libraryCards");if(!cards)return;
+ const filtered=libraryItems.filter(x=>(!librarySearch||`${x.name} ${sourceInfo(x)}`.toLowerCase().includes(librarySearch.toLowerCase()))&&(librarySource==="all"||sourceInfo(x)===librarySource));
+ $("resultCount").textContent=`${filtered.length} Treffer`;
+ cards.innerHTML=filtered.slice(0,300).map((x,i)=>`<article class="content-card"><div class="toolbar" style="justify-content:space-between"><span class="tag">${categoryIcon(libraryCategory)} ${esc(CATEGORIES.find(c=>c[0]===libraryCategory)?.[1]||"")}</span>${sourceBadge(x)}</div><h3>${esc(x.name)}</h3><div class="meta">${esc(sourceInfo(x))}${x.level!==undefined?` · ${x.level===0?"Cantrip":"Level "+x.level}`:""}${x.school?` · ${esc(x.school)}`:""}</div><p>${esc(flattenEntries(x.entries||x.entriesHigherLevel||x.description||"").slice(0,220))}</p><div class="card-bottom"><button class="btn subtle" data-libdetail="${i}">Details</button><button class="btn primary" data-add="${i}">+ Hinzufügen</button></div></article>`).join("")||'<div class="empty"><div class="big">⌕</div>Keine Einträge gefunden. Prüfe Suche, Quellenfilter oder Edition.</div>';
+ cards.querySelectorAll("[data-libdetail]").forEach(b=>b.onclick=()=>showDetails(filtered[Number(b.dataset.libdetail)]));
+ cards.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToCharacter(filtered[Number(b.dataset.add)]));
+}
+function addToCharacter(x){
+ const c=character(),key=libraryCategory;
+ const simple={name:x.name,source:sourceInfo(x),level:x.level,school:x.school,entries:x.entries||x.entriesHigherLevel||x.description||null,_homebrew:!!x._homebrew};
+ if(key==="race")c.race=simple;
+ else if(key==="subrace")c.subrace=simple;
+ else if(key==="class"){c.class=simple;c.hitDice=x.hd?.faces?`1d${x.hd.faces}`:c.hitDice}
+ else if(key==="subclass")c.subclass=simple;
+ else if(key==="background")c.background=simple;
+ else if(key==="feat")c.feats.push(simple);
+ else if(key==="spell")c.spells.push(simple);
+ else if(key==="item")c.items.push(simple);
+ else c.features.push(simple);
+ save();toast(`${x.name} hinzugefügt`);if(key==="race"||key==="class"||key==="subclass"||key==="background")toast(`${x.name} als ${CATEGORIES.find(a=>a[0]===key)[1]} gesetzt`);
+}
+async function loadSourceCatalog(){
+ const box=$("sourceChoices"),status=$("sourceStatus");status.textContent="Lade Quellenkatalog …";
+ try{
+  const data=await fetchJson(dataUrl("sources.json"));
+  const list=getArray(data,"source");
+  const names=list.map(x=>({json:x.json||x.source||"",full:x.full||x.abbreviation||x.json||"Unknown",abv:x.abbreviation||x.json||""})).filter(x=>x.json);
+  const brews=await getActiveBrews();
+  const brewNames=brews.flatMap(x=>(x.data._meta?.sources||[]).map(s=>({json:s.json,full:s.full||s.json,abv:s.abbreviation||s.json,homebrew:true}))).filter(x=>x.json);
+  const known=new Set(names.map(x=>x.json));
+  brewNames.forEach(x=>{if(!known.has(x.json)){names.push(x);known.add(x.json)}});
+  if(!Array.isArray(state.activeSources))state.activeSources=names.map(x=>x.json);
+  else{
+   const seen=new Set(state.homebrewSourceSeen||[]);
+   const newlyFound=brewNames.map(x=>x.json).filter(x=>!seen.has(x));
+   state.activeSources=[...new Set([...state.activeSources,...newlyFound])];
+   state.homebrewSourceSeen=[...seen,...newlyFound];
+  }
+  state._sourceCatalog=names;save();
+  drawSources(names);status.textContent=`${names.length} Quellen gefunden · ${state.activeSources.length} aktiviert.`;
+ }catch(e){status.textContent="Quellenkatalog konnte nicht geladen werden. Lade zunächst eine Kategorie; Quellen lassen sich dann aus den gefundenen Daten ergänzen.";console.warn(e)}
+}
+function drawSources(names){
+ const box=$("sourceChoices");if(!box)return;const query=($("sourceSearch")?.value||"").toLowerCase();
+ box.innerHTML=names.filter(x=>!query||`${x.full} ${x.json}`.toLowerCase().includes(query)).map(x=>`<label class="source-option"><input type="checkbox" data-source="${esc(x.json)}" ${state.activeSources.includes(x.json)?"checked":""}><span>${esc(x.full)}${x.homebrew?'<small>HOMEBREW</small>':""}<small>${esc(x.json)}</small></span></label>`).join("");
+ box.querySelectorAll("[data-source]").forEach(cb=>cb.onchange=()=>{const s=cb.dataset.source;state.activeSources=cb.checked?[...new Set([...state.activeSources,s])]:state.activeSources.filter(x=>x!==s);save();$("sourceStatus").textContent=`${state.activeSources.length} von ${names.length} Quellen aktiviert.`});
+}
+async function loadBrewCatalog(){
+ const status=$("brewStatus");status.textContent="Lade Homebrew-Katalog …";
+ try{
+  const data=await fetchJson(BREW_API);brewCatalog=(data.tree||[]).filter(x=>x.type==="blob"&&x.path.toLowerCase().endsWith(".json")).map(x=>({name:x.path.split("/").pop().replace(/\.json$/i,""),path:x.path,url:BREW_RAW+encodeURI(x.path)}));
+  drawBrewCatalog();status.textContent=`${brewCatalog.length} JSON-Dateien im Homebrew-Repository gefunden.`;
+ }catch(e){status.textContent="Homebrew-Katalog konnte nicht geladen werden. Du kannst alternativ eine JSON-Datei oder Raw-URL importieren.";console.warn(e)}
+}
+function drawBrewCatalog(){
+ const box=$("brewCatalog");if(!box)return;const q=($("brewSearch")?.value||"").toLowerCase(),chosen=new Set(state.homebrew.filter(x=>x.repo).map(x=>x.path));
+ box.innerHTML=brewCatalog.filter(x=>!q||`${x.name} ${x.path}`.toLowerCase().includes(q)).slice(0,500).map(x=>`<label class="source-option"><input type="checkbox" data-brew="${esc(x.path)}" ${chosen.has(x.path)?"checked":""}><span>${esc(x.name)}<small>${esc(x.path)}</small></span></label>`).join("")||'<p class="muted small">Keine Dateien entsprechen der Suche.</p>';
+ box.querySelectorAll("[data-brew]").forEach(cb=>cb.onchange=async()=>{const item=brewCatalog.find(x=>x.path===cb.dataset.brew);if(cb.checked)state.homebrew.push({...item,repo:true,enabled:true});else state.homebrew=state.homebrew.filter(x=>x.path!==cb.dataset.brew);save();drawBrewCatalog();$("brewActive").textContent=state.homebrew.filter(x=>x.enabled).length+" Homebrew-Werke aktiviert";cache.clear();if(state._sourceCatalog)await loadSourceCatalog()});
+}
+function renderSources(){
+ const body=`<div class="notice"><strong>Quellensteuerung:</strong> Deaktiviere Bücher, die deine Spielleitung nicht erlaubt. Die Auswahl wirkt auf alle Kategorien in der Bibliothek.</div>
+ <div class="divider"></div><div class="panel-head"><div><h3>Offizielle 5e.tools-Quellen</h3><div class="muted small">Quellen einzeln aktivieren oder deaktivieren.</div></div><button class="btn primary" id="loadSources">Quellen laden</button></div>
+ <div class="toolbar"><input id="sourceSearch" type="search" placeholder="Quelle suchen …"><button class="btn subtle" id="allSources">Alle</button><button class="btn subtle" id="noSources">Keine</button></div><p class="status" id="sourceStatus">Noch nicht geladen.</p><div class="source-list" id="sourceChoices"></div>
+ <div class="divider"></div><div class="panel-head"><div><h3>5e.tools Homebrew</h3><div class="muted small">Community-Erweiterungen aus dem öffentlichen Repository laden.</div></div><button class="btn primary" id="loadBrewCatalog">Katalog laden</button></div>
+ <div class="toolbar"><input id="brewSearch" type="search" placeholder="Homebrew-Werk oder Dateiname suchen …"></div><p class="status" id="brewStatus">Noch nicht geladen.</p><p class="status gold" id="brewActive">${state.homebrew.filter(x=>x.enabled).length} Homebrew-Werke aktiviert</p><div class="source-list" id="brewCatalog"></div>
+ <div class="divider"></div><h3>Eigene Homebrew-Dateien</h3><div class="grid two"><div class="field"><label>JSON-Datei importieren</label><input type="file" id="brewFile" accept=".json,application/json" multiple></div><div class="field"><label>Direkte Raw-JSON-URL</label><input id="brewUrl" type="url" placeholder="https://raw.githubusercontent.com/..."></div></div><div class="row"><button class="btn subtle" id="addBrewUrl">URL hinzufügen</button><button class="btn subtle" id="exportHomebrew">Homebrew-Konfiguration exportieren</button></div><div class="notice" style="margin-top:16px">Homebrew ist inoffiziell. Prüfe Inhalte und Quellen mit deiner Spielleitung. Große lokale JSON-Dateien können das Browser-Speicherlimit erreichen; exportiere deine Daten regelmäßig.</div>`;
+ $("view").innerHTML=panel("Quellen & Homebrew","Stelle dein persönliches Regelwerk zusammen.",body);
+ $("loadSources").onclick=loadSourceCatalog;$("sourceSearch").oninput=()=>{if(state._sourceCatalog)drawSources(state._sourceCatalog)};
+ $("allSources").onclick=()=>{if(state._sourceCatalog){state.activeSources=state._sourceCatalog.map(x=>x.json);save();drawSources(state._sourceCatalog)}};
+ $("noSources").onclick=()=>{state.activeSources=[];save();if(state._sourceCatalog)drawSources(state._sourceCatalog)};
+ $("loadBrewCatalog").onclick=loadBrewCatalog;$("brewSearch").oninput=drawBrewCatalog;
+ $("brewFile").onchange=async e=>{for(const f of [...e.target.files]){try{const data=JSON.parse(await f.text());const name=data._meta?.sources?.[0]?.full||f.name;state.homebrew.push({name,kind:"local",enabled:true,data});}catch(err){toast(`${f.name}: ungültige JSON-Datei`)}}save();toast("Homebrew importiert");e.target.value="";if(state._sourceCatalog)await loadSourceCatalog()};
+ $("addBrewUrl").onclick=async()=>{const url=$("brewUrl").value.trim();if(!url)return;try{const data=await fetchJson(url);state.homebrew.push({name:data._meta?.sources?.[0]?.full||url.split("/").pop(),kind:"url",url,enabled:true,data});save();$("brewUrl").value="";toast("Homebrew-URL hinzugefügt");if(state._sourceCatalog)await loadSourceCatalog()}catch(e){toast("URL konnte nicht geladen werden – Raw-Link und CORS prüfen")}};
+ $("exportHomebrew").onclick=()=>downloadJson(state.homebrew,"homebrew-settings.json");
+ if(state._sourceCatalog)drawSources(state._sourceCatalog);else loadSourceCatalog();
+ if(brewCatalog.length)drawBrewCatalog();
+}
+function renderSettings(){
+ const body=`<div class="grid two">${field("dataBase","5e.tools-Datenbasis (Raw-JSON-Ordner)",state.dataBase,{key:"dataBase"})}<div class="field"><label>Regelwerk für neuen Charakter</label><select id="defaultEdition"><option value="2014">2014 – klassische Regeln</option><option value="2024">2024 – neue Regeln</option></select></div></div>
+ <div class="divider"></div><h3>Charakterverwaltung</h3><div class="row"><button class="btn primary" id="newCharacter">+ Neuer Charakter</button><button class="btn subtle" id="exportAll">Alle Charaktere exportieren</button><label class="btn subtle" for="importChars" style="margin:0;cursor:pointer">Charakter(e) importieren</label><input id="importChars" type="file" accept=".json,application/json" multiple hidden></div>
+ <div class="divider"></div><h3>Darstellung & Daten</h3><div class="row"><button class="btn subtle" id="toggleTheme">${state.theme==="dark"?"Hellmodus aktivieren":"Dunkelmodus aktivieren"}</button><button class="btn subtle" id="clearCache">Daten-Cache leeren</button><button class="btn danger" id="resetApp">Lokale App-Daten zurücksetzen</button></div>
+ <div class="divider"></div><h3>Über Grimoire</h3><p class="muted small">Grimoire ist ein inoffizieller, lokal gespeicherter D&D-5e-Charaktermanager. Regel- und Homebrew-Daten werden zur Laufzeit aus externen JSON-Quellen geladen. Deine Charakterdaten werden nicht an einen Server übertragen.</p><p class="muted small">Hinweis: Diese App automatisiert nicht sämtliche Sonderregeln, Voraussetzungen, Klassenprogressionen oder Zaubereffekte. Prüfe regelrelevante Entscheidungen anhand deiner erlaubten Bücher und mit deiner Spielleitung.</p>`;
+ $("view").innerHTML=panel("Einstellungen","Passe Datenquellen, Charaktere und Darstellung an.",body);
+ $("defaultEdition").value=character().edition;
+ $("defaultEdition").onchange=e=>{character().edition=e.target.value;save();toast("Regelwerk geändert")};
+ $("view").querySelector('[data-field="dataBase"]').addEventListener("change",e=>{state.dataBase=e.target.value.replace(/\/+$/,"");cache.clear();save();toast("Datenbasis aktualisiert")});
+ $("newCharacter").onclick=()=>newCharacter();$("exportAll").onclick=()=>downloadJson(state.characters,"grimoire-characters.json");
+ $("importChars").onchange=async e=>{for(const f of [...e.target.files])try{const d=JSON.parse(await f.text()),arr=Array.isArray(d)?d:[d];for(const x of arr){if(x&&typeof x==="object"&&x.name){const c={...blankCharacter(),...x,id:uid(),abilities:{...blankCharacter().abilities,...x.abilities}};state.characters.push(c)}}}catch(err){toast(`${f.name}: Import fehlgeschlagen`)}state.activeId=state.characters.at(-1).id;save();renderView();e.target.value=""};
+ $("toggleTheme").onclick=toggleTheme;$("clearCache").onclick=()=>{cache.clear();toast("Daten-Cache geleert")};
+ $("resetApp").onclick=()=>{if(confirm("Alle Charaktere, Quellen- und Homebrew-Einstellungen lokal löschen?")){localStorage.removeItem("grimoire5e");state=defaultState();state.activeId=state.characters[0].id;cache.clear();renderView();toast("Zurückgesetzt")}};
+}
+function newCharacter(){const c=blankCharacter();c.name="Abenteurer "+(state.characters.length+1);state.characters.push(c);state.activeId=c.id;save();renderView();toast("Neuer Charakter erstellt")}
+function deleteCharacter(){if(state.characters.length===1){toast("Mindestens ein Charakter muss vorhanden sein.");return}if(!confirm("Diesen Charakter wirklich löschen?"))return;state.characters=state.characters.filter(c=>c.id!==state.activeId);state.activeId=state.characters[0].id;save();renderView()}
+function toggleTheme(){state.theme=state.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=state.theme;save();$("themeToggle").textContent=state.theme==="dark"?"☼":"☾"}
+$("nav").querySelectorAll("button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
+$("characterSwitch").onchange=e=>{state.activeId=e.target.value;save();renderView()};
+$("themeToggle").onclick=toggleTheme;$("quickSave").onclick=()=>{save();toast("Gespeichert")};
+$("modalClose").onclick=$("modalDone").onclick=()=>$("modal").classList.remove("open");
+$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("open")};
+document.documentElement.dataset.theme=state.theme;$("themeToggle").textContent=state.theme==="dark"?"☼":"☾";
+renderView();
+</script>
+</body>
+</html>
