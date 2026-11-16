@@ -134,7 +134,63 @@ body{background:radial-gradient(ellipse at 12% 0%,#c08a3820,transparent 32%),rad
 .spell-result span{display:grid;gap:3px}.spell-result small{font-size:10px;color:var(--muted)}
 .spell-result b{color:var(--gold);font-size:18px}.spell-result.selected{border-color:var(--teal);background:#70d4c116}
 @media(max-width:600px){.spell-picker-results{grid-template-columns:1fr}.spell-filter-row{grid-template-columns:1fr}.ability-budget{width:100%;margin-left:0}}
-.skill-enhanced{display:grid;grid-template-columns:minmax(0,1fr) 38px 105px;align-items:center;gap:8px}.skill-enhanced>label:first-child{display:flex;align-items:center;gap:8px}.expertise-toggle{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gold2);white-space:nowrap}.expertise-toggle input{accent-color:var(--gold)}.expertise-toggle input:disabled{opacity:.25}@media(max-width:480px){.skill-enhanced{grid-template-columns:minmax(0,1fr) 30px 92px;gap:4px}.expertise-toggle{font-size:9px}}.feat-result{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}.feat-result-main{display:grid;gap:3px;min-width:0}.feat-result-main small{font-size:10px;color:var(--muted)}.feat-status{font-size:10px}.feat-status.ok{color:var(--teal)}.feat-status.check{color:var(--gold2)}.feat-status.blocked{color:#ef8888}.feat-result button{flex-shrink:0}.skill-enhanced input:disabled{opacity:.35;cursor:not-allowed}</style>
+.skill-enhanced{display:grid;grid-template-columns:minmax(0,1fr) 38px 105px;align-items:center;gap:8px}.skill-enhanced>label:first-child{display:flex;align-items:center;gap:8px}.expertise-toggle{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gold2);white-space:nowrap}.expertise-toggle input{accent-color:var(--gold)}.expertise-toggle input:disabled{opacity:.25}@media(max-width:480px){.skill-enhanced{grid-template-columns:minmax(0,1fr) 30px 92px;gap:4px}.expertise-toggle{font-size:9px}}.feat-result{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}.feat-result-main{display:grid;gap:3px;min-width:0}.feat-result-main small{font-size:10px;color:var(--muted)}.feat-status{font-size:10px}.feat-status.ok{color:var(--teal)}.feat-status.check{color:var(--gold2)}.feat-status.blocked{color:#ef8888}.feat-result button{flex-shrink:0}.skill-enhanced input:disabled{opacity:.35;cursor:not-allowed}
+/* Mobile-first polish: touch targets, compact layouts and safe-area handling */
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body{overflow-x:hidden}
+button,.btn,.icon-btn,.nav button,select,input[type=checkbox]{touch-action:manipulation}
+button,.btn,.icon-btn{min-height:42px}
+input,select,textarea{font-size:16px}
+.panel,.content-card,.list-row,.wizard-choice-tile{min-width:0}
+img,svg,canvas{max-width:100%}
+@media(max-width:620px){
+ .main{padding:12px 12px calc(92px + env(safe-area-inset-bottom));}
+ .topbar{align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+ .top-actions{width:100%;display:flex;flex-wrap:wrap;gap:7px}
+ .top-actions .character-switch{flex:1 1 145px;width:auto;max-width:none;min-height:42px}
+ .top-actions .btn,.top-actions button{flex:0 1 auto;min-height:42px;padding:9px 11px}
+ .page-title{font-size:clamp(25px,7vw,34px)}
+ .panel{padding:14px;margin-bottom:12px;border-radius:14px}
+ .panel-head{flex-wrap:wrap;gap:9px;margin-bottom:13px}
+ .panel-head h2{font-size:19px}
+ .grid.two,.grid.three,.grid.four{grid-template-columns:minmax(0,1fr)}
+ .ability-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .ability{padding:9px 5px}
+ .ability select,.ability input{font-size:16px}
+ .skill-grid{grid-template-columns:minmax(0,1fr);gap:4px}
+ .skill-enhanced{grid-template-columns:minmax(0,1fr) 34px 92px;gap:5px}
+ .expertise-toggle{font-size:10px}
+ .toolbar{display:grid;grid-template-columns:minmax(0,1fr);width:100%}
+ .toolbar input,.toolbar select{width:100%;min-width:0}
+ .cards,.picker-cards{grid-template-columns:minmax(0,1fr)}
+ .list-row{flex-wrap:wrap;gap:8px;padding:9px}
+ .list-row .grow{flex:1 1 100%}
+ .list-row select{flex:1 1 100%;min-width:0}
+ .source-actions{grid-template-columns:minmax(0,1fr)}
+ .source-list{grid-template-columns:minmax(0,1fr);max-height:45vh}
+ .ability-method-bar{align-items:stretch;gap:8px;padding:10px}
+ .ability-method-bar select{max-width:none;width:100%}
+ .ability-budget{width:100%;margin:0}
+ .wizard-choice-tile{grid-template-columns:34px minmax(0,1fr);gap:8px}
+ .wizard-choice-icon{width:34px;height:34px}
+ .wizard-choice-tile>.btn{grid-column:2;justify-self:start}
+ .wizard-picker{grid-column:1/-1}
+ .nav button{min-height:52px;padding:6px 2px}
+ .nav button .nav-text{font-size:10px;line-height:1.15}
+ .sidebar{padding-bottom:calc(7px + env(safe-area-inset-bottom))}
+ .notice{overflow-wrap:anywhere}
+ pre,code{max-width:100%;overflow-x:auto}
+}
+@media(max-width:380px){
+ .main{padding-left:9px;padding-right:9px}
+ .top-actions .btn{font-size:11px;padding:8px}
+ .ability-grid{gap:5px}
+ .skill-enhanced{grid-template-columns:minmax(0,1fr) 30px 84px}
+ .expertise-toggle{font-size:9px}
+ .nav button .nav-text{font-size:9px}
+}
+
+</style>
 </head>
 <body>
 <div class="app">
