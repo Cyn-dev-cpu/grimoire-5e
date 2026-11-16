@@ -236,7 +236,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 const blankCharacter=()=>({id:uid(),name:"Neuer Abenteurer",edition:"2024",level:1,race:null,subrace:null,class:null,subclass:null,background:null,alignment:"",experience:0,abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},saveProficiencies:[],skillProficiencies:[],classSkillProficiencies:[],backgroundSkillProficiencies:[],expertise:[],hpMax:10,hpCurrent:10,tempHp:0,ac:10,speed:30,hitDice:"1d8",deathSuccess:0,deathFailure:0,spellAbility:"",spellSaveOverride:"",spellAttackOverride:"",proficiencyOverride:"",features:[],feats:[],spells:[],items:[],notes:"",personality:"",ideals:"",bonds:"",flaws:"",attacks:""});
 const defaultState=()=>({dataBase:DATA_DEFAULT,activeSources:null,homebrew:[],characters:[blankCharacter()],activeId:null,theme:"dark"});
-let state=defaultState(),cache=new Map(),brewCatalog=[],currentView="sheet",libraryCategory="race",libraryItems=[],librarySearch="",librarySource="all",busy=false,creationStep=0,wizardMode=true;
+let state=defaultState(),cache=new Map(),brewCatalog=[],currentView="sheet",libraryCategory="race",libraryItems=[],librarySearch="",librarySource="all",busy=false,creationStep=0,wizardMode=false;
 try{const saved=JSON.parse(localStorage.getItem("grimoire5e")||"null");if(saved&&typeof saved==="object")state={...defaultState(),...saved};}catch(e){}
 if(!state.characters?.length)state.characters=[blankCharacter()];
 if(!state.activeId||!state.characters.some(c=>c.id===state.activeId))state.activeId=state.characters[0].id;
@@ -433,7 +433,7 @@ function renderSheet(){
  $("view").querySelectorAll("[data-save]").forEach(el=>el.addEventListener("change",()=>{const a=c.saveProficiencies,k=el.dataset.save;c.saveProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
  $("view").querySelectorAll("[data-remove]").forEach(el=>el.addEventListener("click",()=>{const [k,i]=el.dataset.remove.split(":");c[k].splice(Number(i),1);save();renderSheet()}));
  $("view").querySelectorAll("[data-detail]").forEach(el=>el.addEventListener("click",()=>{const [k,i]=el.dataset.detail.split(":");showDetails(c[k][Number(i)])}));
- $("printSheet").onclick=()=>window.print();$("exportCharacter").onclick=()=>downloadJson(c,`${slug(c.name)}.json`);$("rollD20").onclick=()=>toast("W20: "+(1+Math.floor(Math.random()*20)));$("deleteCharacter").onclick=()=>deleteCharacter();
+ $("printSheet")?.addEventListener("click",()=>window.print());$("exportCharacter")?.addEventListener("click",()=>downloadJson(c,`${slug(c.name)}.json`));$("rollD20")?.addEventListener("click",()=>toast("W20: "+(1+Math.floor(Math.random()*20))));$("deleteCharacter")?.addEventListener("click",()=>deleteCharacter());
 }
 function slug(s){return String(s||"character").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"character"}
 function downloadJson(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
