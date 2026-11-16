@@ -91,6 +91,34 @@ body{background:radial-gradient(ellipse at 12% 0%,#c08a3820,transparent 32%),rad
 .toast{background:#1c2b42;border-color:#617a9c}
 @media(max-width:760px){.source-toolbar{grid-template-columns:1fr}.source-actions{display:grid;grid-template-columns:1fr 1fr}.source-actions .btn{white-space:normal}.source-list{grid-template-columns:1fr 1fr;max-height:440px}.topbar{margin:0 0 18px;padding:12px;border-radius:15px}}
 @media(max-width:420px){.source-list{grid-template-columns:1fr}.source-actions{grid-template-columns:1fr}}
+
+/* Character builder selection experience */
+.creation-intro-grid{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr);gap:18px;align-items:start}
+.creation-name-card{padding:18px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,#1b2b43,#121e32)}
+.creation-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.wizard-choice-tile{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#1b2b43,#121e32);min-width:0}
+.wizard-choice-tile.chosen{border-color:#d0a45f88;background:linear-gradient(120deg,#c99b4d20,#16243a)}
+.wizard-choice-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#d1a65b1c;border:1px solid #d1a65b44;font-size:21px;color:var(--gold2)}
+.wizard-choice-copy{min-width:0;display:grid;gap:2px}
+.wizard-choice-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.wizard-choice-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wizard-choice-copy small{color:var(--muted);font-size:10px;line-height:1.35}
+.wizard-choice-tile>.btn{padding:8px 10px;font-size:11px}
+.wizard-picker{grid-column:1/-1;width:100%;min-width:0}
+.picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 10px}
+.picker-head strong,.picker-head small{display:block}.picker-head small{font-size:11px;color:var(--muted)}
+.picker-search{margin-bottom:10px}
+.picker-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:420px;overflow:auto;padding:2px}
+.wizard-option-card{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--surface2);color:var(--text);min-width:0;transition:.16s}
+.wizard-option-card:hover{border-color:var(--gold);background:var(--surface3);transform:translateY(-1px)}
+.wizard-option-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:10px;background:#d1a65b1c;color:var(--gold2);font-size:18px}
+.wizard-option-main{display:grid;gap:3px;min-width:0}
+.wizard-option-main strong{font-size:13px}
+.wizard-option-main small{font:10px "DM Mono",monospace;color:var(--gold)}
+.wizard-option-main span{font-size:11px;line-height:1.4;color:var(--muted)}
+.wizard-option-arrow{margin-left:auto;color:var(--gold);font-size:17px}
+@media(max-width:900px){.creation-intro-grid{grid-template-columns:1fr}.creation-picks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.creation-picks,.picker-cards{grid-template-columns:1fr}.wizard-choice-tile{grid-template-columns:38px minmax(0,1fr) auto;padding:10px}.wizard-choice-icon{width:38px;height:38px}.wizard-choice-tile>.btn{font-size:10px;padding:7px 8px}}
 </style>
 </head>
 <body>
@@ -195,6 +223,40 @@ function renderHeader(){const c=character();$("characterSwitch").innerHTML=state
 function renderView(){renderHeader();const titles={sheet:["Character sheet","Charakterbogen"],library:["Compendium","Regelbibliothek"],sources:["Content management","Quellen & Homebrew"],settings:["Preferences","Einstellungen"]};$("eyebrow").textContent=titles[currentView][0]+" / "+String(["sheet","library","sources","settings"].indexOf(currentView)+1).padStart(2,"0");$("pageTitle").textContent=titles[currentView][1];({sheet:renderSheet,library:renderLibrary,sources:renderSources,settings:renderSettings})[currentView]()}
 function panel(title,sub,body,actions=""){return `<section class="panel"><div class="panel-head"><div><h2>${title}</h2>${sub?`<div class="muted small">${sub}</div>`:""}</div>${actions}</div>${body}</section>`}
 function field(id,label,value,opts={}){return `<div class="field"><label for="${id}">${label}</label>${opts.area?`<textarea id="${id}" data-field="${opts.key||id}">${esc(value)}</textarea>`:`<input id="${id}" data-field="${opts.key||id}" type="${opts.type||"text"}" value="${esc(value)}" ${opts.min!==undefined?`min="${opts.min}"`:""} ${opts.max!==undefined?`max="${opts.max}"`:""}>`}</div>`}
+const wizardOptionCache={};
+function wizardChoiceTile(cat,label,value,icon,sub){
+ const chosen=value?.name;
+ return `<div class="wizard-choice-tile ${chosen?"chosen":""}"><div class="wizard-choice-icon">${icon}</div><div class="wizard-choice-copy"><span class="wizard-choice-label">${label}</span><strong>${esc(chosen||"Noch nicht gewählt")}</strong><small>${esc(chosen?(value.source||"Ausgewählt"):sub)}</small></div><button class="btn ${chosen?"subtle":"primary"}" type="button" data-open-picker="${cat}">${chosen?"Ändern":"Auswählen"}</button><div class="wizard-picker" data-picker="${cat}"></div></div>`;
+}
+async function openWizardPicker(cat){
+ const host=document.querySelector(`[data-picker="${cat}"]`);if(!host)return;
+ if(cat==="subclass"&&!character().class){host.innerHTML='<p class="muted small">Bitte wähle zuerst eine Klasse.</p>';return}
+ host.innerHTML='<p class="muted small">Lade Auswahlmöglichkeiten …</p>';
+ try{
+  let options=await loadCategory(cat);
+  if(cat==="subclass"&&character().class)options=options.filter(x=>!x.className||x.className===character().class.name);
+  wizardOptionCache[cat]=options;
+  const names={race:"Spezies",class:"Klassen",subclass:"Unterklassen",background:"Hintergründe"};
+  host.innerHTML=`<div class="picker-head"><div><strong>${names[cat]} auswählen</strong><small>${options.length} verfügbare Optionen aus deinen aktivierten Quellen</small></div><button class="icon-btn" type="button" data-close-picker="${cat}">×</button></div><input class="picker-search" type="search" placeholder="${names[cat]} durchsuchen …" data-picker-search="${cat}"><div class="picker-cards" data-picker-cards="${cat}">${wizardOptionCards(cat,options)}</div>`;
+  host.querySelector(`[data-picker-search="${cat}"]`).oninput=e=>{const q=e.target.value.toLowerCase();host.querySelector(`[data-picker-cards="${cat}"]`).innerHTML=wizardOptionCards(cat,options.filter(x=>`${x.name} ${sourceInfo(x)} ${flattenEntries(x.entries||"")}`.toLowerCase().includes(q)))};
+  host.querySelectorAll("[data-select-option]").forEach(b=>b.onclick=()=>chooseWizardOption(cat,Number(b.dataset.selectOption)));
+  host.querySelector(`[data-close-picker="${cat}"]`).onclick=()=>host.innerHTML="";
+ }catch(e){host.innerHTML=`<div class="empty">Optionen konnten nicht geladen werden: ${esc(e.message)}</div>`}
+}
+function wizardOptionCards(cat,items){
+ if(!items.length)return '<div class="empty">Keine passenden Optionen gefunden. Prüfe deine aktivierten Quellen.</div>';
+ const icon={race:"🧬",class:"⚔",subclass:"✦",background:"📜"}[cat]||"✧";
+ return items.slice(0,180).map((x,i)=>{const desc=flattenEntries(x.entries||x.description||x.entry||"").slice(0,150);return `<button type="button" class="wizard-option-card" data-select-option="${i}"><span class="wizard-option-icon">${icon}</span><span class="wizard-option-main"><strong>${esc(x.name)}</strong><small>${esc(sourceInfo(x))}</small><span>${esc(desc||"Keine Kurzbeschreibung in den geladenen Daten.")}</span></span><span class="wizard-option-arrow">↗</span></button>`}).join("");
+}
+function chooseWizardOption(cat,index){
+ const x=wizardOptionCache[cat]?.[index];if(!x)return;
+ const c=character(),simple={...x,name:x.name,source:sourceInfo(x),_homebrew:!!x._homebrew};
+ if(cat==="race"){c.race=simple;c.subrace=null}
+ if(cat==="class"){c.class=simple;c.subclass=null;if(x.hd?.faces)c.hitDice=`1d${x.hd.faces}`}
+ if(cat==="subclass")c.subclass=simple;
+ if(cat==="background")c.background=simple;
+ save();toast(`${x.name} ausgewählt`);renderSheet();
+}
 function renderSheet(){
  const c=character(),pb=profBonus(c),initiative=abilityMod("dex",c),passive=10+derivedSkill(SKILLS.find(s=>s[0]==="perception"),c);
  const abilityHtml=ABILITIES.map(([k,n])=>`<div class="ability"><label>${n}</label><input type="number" min="1" max="30" data-ability="${k}" value="${Number(c.abilities[k]??10)}"><div class="modifier">${fmtMod(abilityMod(k,c))}</div></div>`).join("");
@@ -202,9 +264,14 @@ function renderSheet(){
  const saves=ABILITIES.map(([k,n])=>`<label class="skill"><input type="checkbox" data-save="${k}" ${c.saveProficiencies.includes(k)?"checked":""}><span>${n}</span><span>${fmtMod(abilityMod(k,c)+(c.saveProficiencies.includes(k)?pb:0))}</span></label>`).join("");
  const choices=(arr,cat)=>arr.length?`<div class="list">${arr.map((x,i)=>`<div class="list-row"><div class="grow"><strong>${esc(x.name)}</strong><small>${esc(x.source||"")}${x.level!==undefined?` · Grad ${x.level}`:""}</small></div><button class="btn subtle" data-detail="${cat}:${i}">Details</button><button class="btn danger" data-remove="${cat}:${i}">×</button></div>`).join("")}</div>`:`<div class="empty">Noch nichts hinzugefügt. Öffne die Regelbibliothek, um Inhalte auszuwählen.</div>`;
  let body=`
- <div class="grid two">
-  <div>${field("charName","Charaktername",c.name,{key:"name"})}<div class="grid two">${field("charLevel","Stufe",c.level,{type:"number",min:1,max:20,key:"level"})}${field("charXp","Erfahrungspunkte",c.experience,{type:"number",min:0,key:"experience"})}</div></div>
-  <div class="grid two">${field("charRace","Spezies",c.race?.name||"",{key:"raceName"})}${field("charSubrace","Unterspezies",c.subrace?.name||"",{key:"subraceName"})}${field("charClass","Klasse",c.class?.name||"",{key:"className"})}${field("charSubclass","Unterklasse",c.subclass?.name||"",{key:"subclassName"})}${field("charBackground","Hintergrund",c.background?.name||"",{key:"backgroundName"})}</div>
+ <div class="creation-intro-grid">
+  <div class="creation-name-card">${field("charName","Wie heißt dein Held?",c.name,{key:"name"})}<div class="grid two">${field("charLevel","Stufe",c.level,{type:"number",min:1,max:20,key:"level"})}${field("charXp","EP",c.experience,{type:"number",min:0,key:"experience"})}</div></div>
+  <div class="creation-picks">
+   ${wizardChoiceTile("race","Spezies",c.race,"🧬","Wähle Herkunft und angeborene Eigenschaften")}
+   ${wizardChoiceTile("class","Klasse",c.class,"⚔","Wähle Rolle und Kernfähigkeiten")}
+   ${wizardChoiceTile("subclass","Unterklasse",c.subclass,"✦",c.class?"Vertiefe deinen Klassenstil":"Wähle zuerst eine Klasse")}
+   ${wizardChoiceTile("background","Hintergrund",c.background,"📜","Wähle Vergangenheit und Fertigkeiten")}
+  </div>
  </div>
  <div class="grid four" style="margin-top:16px">
   <div class="stat"><div class="value">${pb}</div><div class="caption">Übungsbonus</div></div>
@@ -241,6 +308,7 @@ function renderSheet(){
  if($("wizardNext"))$("wizardNext").onclick=()=>{if(creationStep>=8){wizardMode=false;creationStep=0}else creationStep++;renderSheet();window.scrollTo({top:0,behavior:"smooth"})};
  if($("showFullSheet"))$("showFullSheet").onclick=()=>{wizardMode=false;renderSheet()};
  if($("showWizard"))$("showWizard").onclick=()=>{wizardMode=true;creationStep=0;renderSheet()};
+ $("view").querySelectorAll("[data-open-picker]").forEach(b=>b.onclick=()=>openWizardPicker(b.dataset.openPicker));
  $("view").querySelectorAll("[data-field]").forEach(el=>el.addEventListener("change",()=>{const k=el.dataset.field;if(k.endsWith("Name")){const key={raceName:"race",subraceName:"subrace",className:"class",subclassName:"subclass",backgroundName:"background"}[k];if(el.value.trim())c[key]={...(c[key]||{}),name:el.value.trim()};else c[key]=null}else c[k]=el.type==="number"?(el.value===""?"":Number(el.value)):el.value;save();if(["level","proficiencyOverride"].includes(k))renderSheet();else renderHeader()}));
  $("view").querySelectorAll("[data-ability]").forEach(el=>el.addEventListener("change",()=>{c.abilities[el.dataset.ability]=Number(el.value)||1;save();renderSheet()}));
  $("view").querySelectorAll("[data-skill]").forEach(el=>el.addEventListener("change",()=>{const a=c.skillProficiencies,k=el.dataset.skill;c.skillProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
