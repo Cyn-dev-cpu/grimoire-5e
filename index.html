@@ -231,12 +231,14 @@ function wizardChoiceTile(cat,label,value,icon,sub){
 async function openWizardPicker(cat){
  const host=document.querySelector(`[data-picker="${cat}"]`);if(!host)return;
  if(cat==="subclass"&&!character().class){host.innerHTML='<p class="muted small">Bitte wähle zuerst eine Klasse.</p>';return}
+ if(cat==="subrace"&&!character().race){host.innerHTML='<p class="muted small">Bitte wähle zuerst eine Spezies.</p>';return}
  host.innerHTML='<p class="muted small">Lade Auswahlmöglichkeiten …</p>';
  try{
   let options=await loadCategory(cat);
   if(cat==="subclass"&&character().class)options=options.filter(x=>!x.className||x.className===character().class.name);
+  if(cat==="subrace"&&character().race)options=options.filter(x=>!x.raceName||x.raceName===character().race.name);
   wizardOptionCache[cat]=options;
-  const names={race:"Spezies",class:"Klassen",subclass:"Unterklassen",background:"Hintergründe"};
+  const names={race:"Spezies",subrace:"Unterspezies",class:"Klassen",subclass:"Unterklassen",background:"Hintergründe"};
   host.innerHTML=`<div class="picker-head"><div><strong>${names[cat]} auswählen</strong><small>${options.length} verfügbare Optionen aus deinen aktivierten Quellen</small></div><button class="icon-btn" type="button" data-close-picker="${cat}">×</button></div><input class="picker-search" type="search" placeholder="${names[cat]} durchsuchen …" data-picker-search="${cat}"><div class="picker-cards" data-picker-cards="${cat}">${wizardOptionCards(cat,options)}</div>`;
   const cards=host.querySelector(`[data-picker-cards="${cat}"]`);
   cards.onclick=e=>{const button=e.target.closest("[data-select-option]");if(button)chooseWizardOption(cat,Number(button.dataset.selectOption))};
@@ -246,13 +248,14 @@ async function openWizardPicker(cat){
 }
 function wizardOptionCards(cat,items){
  if(!items.length)return '<div class="empty">Keine passenden Optionen gefunden. Prüfe deine aktivierten Quellen.</div>';
- const icon={race:"🧬",class:"⚔",subclass:"✦",background:"📜"}[cat]||"✧";
+ const icon={race:"🧬",subrace:"✧",class:"⚔",subclass:"✦",background:"📜"}[cat]||"✧";
  return items.slice(0,180).map((x,i)=>{const desc=flattenEntries(x.entries||x.description||x.entry||"").slice(0,150);return `<button type="button" class="wizard-option-card" data-select-option="${i}"><span class="wizard-option-icon">${icon}</span><span class="wizard-option-main"><strong>${esc(x.name)}</strong><small>${esc(sourceInfo(x))}</small><span>${esc(desc||"Keine Kurzbeschreibung in den geladenen Daten.")}</span></span><span class="wizard-option-arrow">↗</span></button>`}).join("");
 }
 function chooseWizardOption(cat,index){
  const x=wizardOptionCache[cat]?.[index];if(!x)return;
  const c=character(),simple={...x,name:x.name,source:sourceInfo(x),_homebrew:!!x._homebrew};
  if(cat==="race"){c.race=simple;c.subrace=null}
+ if(cat==="subrace")c.subrace=simple;
  if(cat==="class"){c.class=simple;c.subclass=null;if(x.hd?.faces)c.hitDice=`1d${x.hd.faces}`}
  if(cat==="subclass")c.subclass=simple;
  if(cat==="background")c.background=simple;
@@ -269,6 +272,7 @@ function renderSheet(){
   <div class="creation-name-card">${field("charName","Wie heißt dein Held?",c.name,{key:"name"})}<div class="grid two">${field("charLevel","Stufe",c.level,{type:"number",min:1,max:20,key:"level"})}${field("charXp","EP",c.experience,{type:"number",min:0,key:"experience"})}</div></div>
   <div class="creation-picks">
    ${wizardChoiceTile("race","Spezies",c.race,"🧬","Wähle Herkunft und angeborene Eigenschaften")}
+   ${wizardChoiceTile("subrace","Unterspezies",c.subrace,"✧",c.race?"Ergänze deine Spezies":"Wähle zuerst eine Spezies")}
    ${wizardChoiceTile("class","Klasse",c.class,"⚔","Wähle Rolle und Kernfähigkeiten")}
    ${wizardChoiceTile("subclass","Unterklasse",c.subclass,"✦",c.class?"Vertiefe deinen Klassenstil":"Wähle zuerst eine Klasse")}
    ${wizardChoiceTile("background","Hintergrund",c.background,"📜","Wähle Vergangenheit und Fertigkeiten")}
