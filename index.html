@@ -172,7 +172,7 @@ function renderSheet(){
  <div class="divider"></div><div class="grid two">${field("attacks","Angriffe & Waffen",c.attacks,{area:true,key:"attacks"})}${field("notes","Notizen",c.notes,{area:true,key:"notes"})}${field("personality","Persönlichkeit",c.personality,{area:true,key:"personality"})}${field("ideals","Ideale",c.ideals,{area:true,key:"ideals"})}${field("bonds","Bindungen",c.bonds,{area:true,key:"bonds"})}${field("flaws","Makel",c.flaws,{area:true,key:"flaws"})}</div>
  <div class="row no-print"><button class="btn primary" id="printSheet">Bogen drucken / PDF</button><button class="btn subtle" id="exportCharacter">Charakter exportieren</button><button class="btn subtle" id="rollD20">W20 würfeln</button><button class="btn danger" id="deleteCharacter">Charakter löschen</button></div>`;
  if(wizardMode){
-  const steps=["Grunddaten","Spezies & Klasse","Attribute","Kampf & Rettungswürfe","Fertigkeiten","Zauberwerte","Talente","Zauber","Merkmale","Ausrüstung & Persönlichkeit"];
+  const steps=["Grunddaten, Spezies & Klasse","Attribute","Kampf & Rettungswürfe","Fertigkeiten","Zauberwerte","Talente","Zauber","Merkmale","Ausrüstung & Persönlichkeit"];
   const chunks=body.split('<div class="divider"></div>');
   const total=Math.min(chunks.length,steps.length);
   creationStep=Math.max(0,Math.min(creationStep,total-1));
@@ -184,7 +184,7 @@ function renderSheet(){
  }
  $("view").innerHTML=panel(wizardMode?"Charakter erstellen":"Dein Abenteuer beginnt", wizardMode?"Dein Charakter entsteht Schritt für Schritt.":"Alle Werte lassen sich manuell anpassen. Abgeleitete Werte werden live neu berechnet.",body,`<span class="tag goldtag">${c.edition} rules</span>`);
  if($("wizardPrev"))$("wizardPrev").onclick=()=>{creationStep=Math.max(0,creationStep-1);renderSheet()};
- if($("wizardNext"))$("wizardNext").onclick=()=>{if(creationStep>=9){wizardMode=false;creationStep=0}else creationStep++;renderSheet();window.scrollTo({top:0,behavior:"smooth"})};
+ if($("wizardNext"))$("wizardNext").onclick=()=>{if(creationStep>=8){wizardMode=false;creationStep=0}else creationStep++;renderSheet();window.scrollTo({top:0,behavior:"smooth"})};
  if($("showFullSheet"))$("showFullSheet").onclick=()=>{wizardMode=false;renderSheet()};
  if($("showWizard"))$("showWizard").onclick=()=>{wizardMode=true;creationStep=0;renderSheet()};
  $("view").querySelectorAll("[data-field]").forEach(el=>el.addEventListener("change",()=>{const k=el.dataset.field;if(k.endsWith("Name")){const key={raceName:"race",subraceName:"subrace",className:"class",subclassName:"subclass",backgroundName:"background"}[k];if(el.value.trim())c[key]={...(c[key]||{}),name:el.value.trim()};else c[key]=null}else c[k]=el.type==="number"?(el.value===""?"":Number(el.value)):el.value;save();if(["level","proficiencyOverride"].includes(k))renderSheet();else renderHeader()}));
