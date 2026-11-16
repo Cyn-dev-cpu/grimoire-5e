@@ -566,13 +566,28 @@ function renderSources(){
  <div class="divider"></div><div class="panel-head"><div><h3>Offizielle 5e.tools-Quellen</h3><div class="muted small">Quellen einzeln aktivieren oder deaktivieren.</div></div><button class="btn primary" id="loadSources">Quellen laden</button></div>
  <div class="source-toolbar"><div class="source-search"><span>⌕</span><input id="sourceSearch" type="search" placeholder="Quellen durchsuchen …"></div><div class="source-actions"><button class="btn primary" id="allSources">✓ Alle Quellen auswählen</button><button class="btn subtle" id="noSources">Auswahl aufheben</button></div></div><div class="source-summary"><span class="source-summary-dot"></span><span class="status" id="sourceStatus">Noch nicht geladen.</span></div><div class="source-list" id="sourceChoices"></div>
  <div class="divider"></div><div class="panel-head"><div><h3>5e.tools Homebrew</h3><div class="muted small">Community-Erweiterungen aus dem öffentlichen Repository laden.</div></div><button class="btn primary" id="loadBrewCatalog">Katalog laden</button></div>
- <div class="toolbar"><input id="brewSearch" type="search" placeholder="Homebrew-Werk oder Dateiname suchen …"></div><p class="status" id="brewStatus">Noch nicht geladen.</p><p class="status gold" id="brewActive">${state.homebrew.filter(x=>x.enabled).length} Homebrew-Werke aktiviert</p><div class="source-list" id="brewCatalog"></div>
+ <div class="toolbar"><input id="brewSearch" type="search" placeholder="Homebrew-Werk oder Dateiname suchen …"></div><div class="source-actions" style="margin:10px 0"><button class="btn primary" id="activateAllBrew">✓ Alle Homebrew aktivieren</button><button class="btn subtle" id="disableAllBrew">Alle Homebrew deaktivieren</button></div><p class="status" id="brewStatus">Noch nicht geladen.</p><p class="status gold" id="brewActive">${state.homebrew.filter(x=>x.enabled).length} Homebrew-Werke aktiviert</p><div class="source-list" id="brewCatalog"></div>
  <div class="divider"></div><h3>Eigene Homebrew-Dateien</h3><div class="grid two"><div class="field"><label>JSON-Datei importieren</label><input type="file" id="brewFile" accept=".json,application/json" multiple></div><div class="field"><label>Direkte Raw-JSON-URL</label><input id="brewUrl" type="url" placeholder="https://raw.githubusercontent.com/..."></div></div><div class="row"><button class="btn subtle" id="addBrewUrl">URL hinzufügen</button><button class="btn subtle" id="exportHomebrew">Homebrew-Konfiguration exportieren</button></div><div class="notice" style="margin-top:16px">Homebrew ist inoffiziell. Prüfe Inhalte und Quellen mit deiner Spielleitung. Große lokale JSON-Dateien können das Browser-Speicherlimit erreichen; exportiere deine Daten regelmäßig.</div>`;
  $("view").innerHTML=panel("Quellen & Homebrew","Stelle dein persönliches Regelwerk zusammen.",body);
  $("loadSources").onclick=loadSourceCatalog;$("sourceSearch").oninput=()=>{if(state._sourceCatalog)drawSources(state._sourceCatalog)};
  $("allSources").onclick=()=>{if(state._sourceCatalog){state.activeSources=state._sourceCatalog.map(x=>x.json);save();drawSources(state._sourceCatalog);toast("Alle verfügbaren Quellen aktiviert")}};
  $("noSources").onclick=()=>{state.activeSources=[];save();if(state._sourceCatalog)drawSources(state._sourceCatalog)};
  $("loadBrewCatalog").onclick=loadBrewCatalog;$("brewSearch").oninput=drawBrewCatalog;
+ $("activateAllBrew").onclick=async()=>{
+  if(!brewCatalog.length)await loadBrewCatalog();
+  if(!brewCatalog.length){toast("Homebrew-Katalog konnte nicht geladen werden.");return}
+  const byPath=new Map(state.homebrew.filter(x=>x.repo).map(x=>[x.path,x]));
+  for(const item of brewCatalog){const existing=byPath.get(item.path);if(existing)existing.enabled=true;else state.homebrew.push({...item,repo:true,enabled:true})}
+  save();drawBrewCatalog();$("brewActive").textContent=state.homebrew.filter(x=>x.enabled).length+" Homebrew-Werke aktiviert";
+  $("brewStatus").textContent=brewCatalog.length+" Katalogeinträge aktiviert. Die Dateien werden bei Bedarf geladen.";
+  toast(brewCatalog.length+" Homebrew-Quellen aktiviert");
+ };
+ $("disableAllBrew").onclick=()=>{
+  state.homebrew.forEach(x=>{if(x.repo)x.enabled=false});
+  save();drawBrewCatalog();$("brewActive").textContent=state.homebrew.filter(x=>x.enabled).length+" Homebrew-Werke aktiviert";
+  $("brewStatus").textContent="Alle Homebrew-Quellen aus dem Katalog deaktiviert. Eigene lokale/URL-Dateien bleiben unverändert.";
+  toast("Katalog-Homebrew deaktiviert");
+ };
  $("brewFile").onchange=async e=>{for(const f of [...e.target.files]){try{const data=JSON.parse(await f.text());const name=data._meta?.sources?.[0]?.full||f.name;state.homebrew.push({name,kind:"local",enabled:true,data});}catch(err){toast(`${f.name}: ungültige JSON-Datei`)}}save();toast("Homebrew importiert");e.target.value="";if(state._sourceCatalog)await loadSourceCatalog()};
  $("addBrewUrl").onclick=async()=>{const url=$("brewUrl").value.trim();if(!url)return;try{const data=await fetchJson(url);state.homebrew.push({name:data._meta?.sources?.[0]?.full||url.split("/").pop(),kind:"url",url,enabled:true,data});save();$("brewUrl").value="";toast("Homebrew-URL hinzugefügt");if(state._sourceCatalog)await loadSourceCatalog()}catch(e){toast("URL konnte nicht geladen werden – Raw-Link und CORS prüfen")}};
  $("exportHomebrew").onclick=()=>downloadJson(state.homebrew,"homebrew-settings.json");
