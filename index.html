@@ -37,6 +37,60 @@ label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 0
 @media(max-width:900px){.app{grid-template-columns:76px minmax(0,1fr)}.sidebar{padding:20px 10px}.brand{justify-content:center;padding:0}.brand-copy,.nav-label,.nav button .nav-text,.side-bottom .sync-pill{display:none}.nav button{justify-content:center;padding:13px 8px}.nav button .ico{font-size:20px}.side-bottom{justify-items:center}.main{padding:22px 18px 50px}}
 @media(max-width:620px){.app{display:block}.sidebar{position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;height:auto;padding:7px max(8px,env(safe-area-inset-left)) calc(7px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);display:block}.brand,.nav-label,.side-bottom{display:none}.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}.nav button{display:flex;flex-direction:column;gap:2px;padding:6px 2px;font-size:10px;border-radius:9px}.nav button .nav-text{display:block!important}.nav button .ico{font-size:17px}.main{padding:18px 13px calc(100px + env(safe-area-inset-bottom))}.topbar{margin-bottom:18px}.page-title{font-size:28px}.grid.two,.grid.three,.grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}.ability-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-grid{grid-template-columns:1fr}.panel{border-radius:15px}.top-actions .btn .full-label{display:none}.character-switch{min-width:0;width:135px}.toolbar select{width:100%}}
 @media print{body{background:white;color:#111}.sidebar,.topbar,.no-print{display:none!important}.app{display:block}.main{padding:0;max-width:none}.panel{box-shadow:none;border:1px solid #bbb;break-inside:avoid;background:white;color:#111}.stat,.ability{background:#f5f5f5;color:#111}.ability input{color:#111}}
+
+/* --- Grimoire visual refresh --- */
+:root{--bg:#090e1b;--surface:#101a2b;--surface2:#16243a;--surface3:#20324d;--line:#2a3c58;--gold:#e9bd72;--gold2:#f5d99f;--teal:#70d4c1;--shadow:0 20px 65px #02061188;--radius:20px}
+body{background:radial-gradient(ellipse at 12% 0%,#c08a3820,transparent 32%),radial-gradient(ellipse at 90% 18%,#467a9a18,transparent 34%),linear-gradient(145deg,#080d18,#0d1727 55%,#0a1120);background-attachment:fixed}
+.sidebar{background:linear-gradient(180deg,#111d30f2,#0c1525f5);border-right:1px solid #344762;box-shadow:12px 0 45px #02061133}
+.brand-mark{width:46px;height:46px;border-radius:16px;background:linear-gradient(145deg,#f6d99d,#bb8336);box-shadow:0 8px 28px #d39d4b44;font-size:25px}
+.brand strong{font-size:22px;letter-spacing:.01em}
+.nav button{border:1px solid transparent;transition:background .2s,border-color .2s,transform .2s}
+.nav button:hover{border-color:#53698755;transform:translateX(2px)}
+.nav button.active{background:linear-gradient(100deg,#d5a65328,#d5a6530a);border-color:#d5a65335;box-shadow:inset 3px 0 var(--gold),0 5px 18px #0002}
+.main{padding-top:34px}
+.topbar{padding:15px 18px;margin:-8px -12px 26px;border:1px solid #35496666;border-radius:18px;background:linear-gradient(110deg,#17253a99,#101a2b88);backdrop-filter:blur(14px)}
+.eyebrow{font-size:10px;color:var(--gold2);letter-spacing:.22em}
+.page-title{font-size:clamp(30px,4vw,44px);text-shadow:0 3px 25px #0005}
+.panel{background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 97%,#d8b16a 3%),var(--surface));border-color:#354966;box-shadow:0 18px 55px #02061155,inset 0 1px #ffffff08;position:relative;overflow:hidden}
+.panel:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,#d9ad62aa,transparent);pointer-events:none}
+.panel-head{align-items:center}
+.panel h2{font-size:25px;letter-spacing:-.02em}
+.panel h3{font-size:16px;letter-spacing:.01em}
+.btn,.icon-btn,.select-btn{transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.btn{border-radius:12px;font-weight:650;padding:10px 15px}
+.btn.primary{background:linear-gradient(135deg,#f0cf8b,#c28b3f);box-shadow:0 5px 18px #c28b3f26;color:#21180c}
+.btn.primary:hover{box-shadow:0 8px 25px #c28b3f44}
+.btn.subtle{background:linear-gradient(135deg,var(--surface2),var(--surface))}
+.icon-btn{border-radius:13px}
+.stat,.ability,.content-card,.list-row{box-shadow:inset 0 1px #ffffff08;transition:transform .18s,border-color .18s,box-shadow .18s}
+.stat:hover,.ability:hover,.content-card:hover,.list-row:hover{border-color:#b98d4e88;transform:translateY(-2px)}
+.stat{background:linear-gradient(145deg,#1b2b43,#142137);padding:16px}
+.stat .value{font-size:29px}
+.ability{background:linear-gradient(145deg,#1b2b43,#142137);padding:12px 8px}
+.content-card{background:linear-gradient(145deg,#1b2b43,#132037);border-radius:16px;padding:17px}
+.content-card h3{font-size:18px}
+.notice{background:linear-gradient(100deg,#c99b4d18,#67c8b608);border-color:#c99b4d66;border-radius:14px;padding:15px}
+.source-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:12px;align-items:center;margin:12px 0}
+.source-search{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:0 12px;color:var(--gold);font-size:20px}
+.source-search input{border:0;background:transparent;box-shadow:none!important;padding:12px 0;min-width:0}
+.source-actions{display:flex;gap:8px;flex-wrap:wrap}
+.source-actions .btn{white-space:nowrap}
+.source-actions .is-complete{background:linear-gradient(135deg,#75d1b7,#3d9c87);border-color:#75d1b7;color:#071b18}
+.source-summary{display:flex;align-items:center;gap:9px;padding:10px 13px;margin:12px 0;border:1px solid var(--line);border-radius:12px;background:#0a1424aa}
+.source-summary-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px #70d4c1aa}
+.source-list{max-height:520px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:9px;padding:3px}
+.source-option{border-radius:12px;background:linear-gradient(145deg,var(--surface2),#101b2e);padding:11px 12px;min-height:58px;transition:transform .16s,border-color .16s,background .16s}
+.source-option:hover{border-color:#c49a5d99;transform:translateY(-1px)}
+.source-option:has(input:checked){border-color:#c49a5d99;background:linear-gradient(120deg,#c49a5d20,var(--surface2))}
+.source-option input{accent-color:var(--gold);width:17px;height:17px}
+.source-option span{line-height:1.4;font-weight:650}
+.source-option small{font-weight:400}
+.source-list:empty:after{content:"Lade Quellen, um sie hier auszuwählen.";display:block;color:var(--muted);padding:18px}
+.progress{height:7px;border:1px solid #ffffff12}
+.progress>i{background:linear-gradient(90deg,#b77d35,#f3d28e);box-shadow:0 0 12px #e9bd7277}
+.toast{background:#1c2b42;border-color:#617a9c}
+@media(max-width:760px){.source-toolbar{grid-template-columns:1fr}.source-actions{display:grid;grid-template-columns:1fr 1fr}.source-actions .btn{white-space:normal}.source-list{grid-template-columns:1fr 1fr;max-height:440px}.topbar{margin:0 0 18px;padding:12px;border-radius:15px}}
+@media(max-width:420px){.source-list{grid-template-columns:1fr}.source-actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -281,7 +335,7 @@ async function loadSourceCatalog(){
 function drawSources(names){
  const box=$("sourceChoices");if(!box)return;const query=($("sourceSearch")?.value||"").toLowerCase();
  box.innerHTML=names.filter(x=>!query||`${x.full} ${x.json}`.toLowerCase().includes(query)).map(x=>`<label class="source-option"><input type="checkbox" data-source="${esc(x.json)}" ${state.activeSources.includes(x.json)?"checked":""}><span>${esc(x.full)}${x.homebrew?'<small>HOMEBREW</small>':""}<small>${esc(x.json)}</small></span></label>`).join("");
- box.querySelectorAll("[data-source]").forEach(cb=>cb.onchange=()=>{const s=cb.dataset.source;state.activeSources=cb.checked?[...new Set([...state.activeSources,s])]:state.activeSources.filter(x=>x!==s);save();$("sourceStatus").textContent=`${state.activeSources.length} von ${names.length} Quellen aktiviert.`});
+ const updateSummary=()=>{const count=state.activeSources.length;const status=$("sourceStatus");if(status)status.textContent=`${count} von ${names.length} Quellen aktiviert`;const all=$("allSources");if(all){all.innerHTML=count===names.length?"✓ Alle Quellen ausgewählt":"✓ Alle Quellen auswählen";all.classList.toggle("is-complete",count===names.length)}};box.querySelectorAll("[data-source]").forEach(cb=>cb.onchange=()=>{const code=cb.dataset.source;state.activeSources=cb.checked?[...new Set([...state.activeSources,code])]:state.activeSources.filter(x=>x!==code);save();updateSummary()});updateSummary();
 }
 async function loadBrewCatalog(){
  const status=$("brewStatus");status.textContent="Lade Homebrew-Katalog …";
@@ -305,13 +359,13 @@ function drawBrewCatalog(){
 function renderSources(){
  const body=`<div class="notice"><strong>Quellensteuerung:</strong> Deaktiviere Bücher, die deine Spielleitung nicht erlaubt. Die Auswahl wirkt auf alle Kategorien in der Bibliothek.</div>
  <div class="divider"></div><div class="panel-head"><div><h3>Offizielle 5e.tools-Quellen</h3><div class="muted small">Quellen einzeln aktivieren oder deaktivieren.</div></div><button class="btn primary" id="loadSources">Quellen laden</button></div>
- <div class="toolbar"><input id="sourceSearch" type="search" placeholder="Quelle suchen …"><button class="btn subtle" id="allSources">Alle</button><button class="btn subtle" id="noSources">Keine</button></div><p class="status" id="sourceStatus">Noch nicht geladen.</p><div class="source-list" id="sourceChoices"></div>
+ <div class="source-toolbar"><div class="source-search"><span>⌕</span><input id="sourceSearch" type="search" placeholder="Quellen durchsuchen …"></div><div class="source-actions"><button class="btn primary" id="allSources">✓ Alle Quellen auswählen</button><button class="btn subtle" id="noSources">Auswahl aufheben</button></div></div><div class="source-summary"><span class="source-summary-dot"></span><span class="status" id="sourceStatus">Noch nicht geladen.</span></div><div class="source-list" id="sourceChoices"></div>
  <div class="divider"></div><div class="panel-head"><div><h3>5e.tools Homebrew</h3><div class="muted small">Community-Erweiterungen aus dem öffentlichen Repository laden.</div></div><button class="btn primary" id="loadBrewCatalog">Katalog laden</button></div>
  <div class="toolbar"><input id="brewSearch" type="search" placeholder="Homebrew-Werk oder Dateiname suchen …"></div><p class="status" id="brewStatus">Noch nicht geladen.</p><p class="status gold" id="brewActive">${state.homebrew.filter(x=>x.enabled).length} Homebrew-Werke aktiviert</p><div class="source-list" id="brewCatalog"></div>
  <div class="divider"></div><h3>Eigene Homebrew-Dateien</h3><div class="grid two"><div class="field"><label>JSON-Datei importieren</label><input type="file" id="brewFile" accept=".json,application/json" multiple></div><div class="field"><label>Direkte Raw-JSON-URL</label><input id="brewUrl" type="url" placeholder="https://raw.githubusercontent.com/..."></div></div><div class="row"><button class="btn subtle" id="addBrewUrl">URL hinzufügen</button><button class="btn subtle" id="exportHomebrew">Homebrew-Konfiguration exportieren</button></div><div class="notice" style="margin-top:16px">Homebrew ist inoffiziell. Prüfe Inhalte und Quellen mit deiner Spielleitung. Große lokale JSON-Dateien können das Browser-Speicherlimit erreichen; exportiere deine Daten regelmäßig.</div>`;
  $("view").innerHTML=panel("Quellen & Homebrew","Stelle dein persönliches Regelwerk zusammen.",body);
  $("loadSources").onclick=loadSourceCatalog;$("sourceSearch").oninput=()=>{if(state._sourceCatalog)drawSources(state._sourceCatalog)};
- $("allSources").onclick=()=>{if(state._sourceCatalog){state.activeSources=state._sourceCatalog.map(x=>x.json);save();drawSources(state._sourceCatalog)}};
+ $("allSources").onclick=()=>{if(state._sourceCatalog){state.activeSources=state._sourceCatalog.map(x=>x.json);save();drawSources(state._sourceCatalog);toast("Alle verfügbaren Quellen aktiviert")}};
  $("noSources").onclick=()=>{state.activeSources=[];save();if(state._sourceCatalog)drawSources(state._sourceCatalog)};
  $("loadBrewCatalog").onclick=loadBrewCatalog;$("brewSearch").oninput=drawBrewCatalog;
  $("brewFile").onchange=async e=>{for(const f of [...e.target.files]){try{const data=JSON.parse(await f.text());const name=data._meta?.sources?.[0]?.full||f.name;state.homebrew.push({name,kind:"local",enabled:true,data});}catch(err){toast(`${f.name}: ungültige JSON-Datei`)}}save();toast("Homebrew importiert");e.target.value="";if(state._sourceCatalog)await loadSourceCatalog()};
