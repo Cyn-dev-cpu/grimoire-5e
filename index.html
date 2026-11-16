@@ -229,15 +229,29 @@ function addToCharacter(x){
  save();toast(`${x.name} hinzugefügt`);if(key==="race"||key==="class"||key==="subclass"||key==="background")toast(`${x.name} als ${CATEGORIES.find(a=>a[0]===key)[1]} gesetzt`);
 }
 async function loadSourceCatalog(){
- const box=$("sourceChoices"),status=$("sourceStatus");status.textContent="Lade Quellenkatalog …";
+ const box=$("sourceChoices"),status=$("sourceStatus");status.textContent="Ermittle verfügbare Quellen …";
  try{
-  const data=await fetchJson(dataUrl("sources.json"));
-  const list=getArray(data,"source");
-  const names=list.map(x=>({json:x.json||x.source||"",full:x.full||x.abbreviation||x.json||"Unknown",abv:x.abbreviation||x.json||""})).filter(x=>x.json);
+  const found=new Map();
+  const add=(code,full,homebrew=false)=>{
+   if(!code)return;
+   const prior=found.get(code);
+   found.set(code,{json:code,full:full||prior?.full||code,abv:code,homebrew:homebrew||prior?.homebrew||false});
+  };
+  const addMeta=data=>(data?._meta?.sources||[]).forEach(s=>add(s.json,s.full||s.abbreviation||s.json));
+  const paths=["races.json","backgrounds.json","feats.json","items.json","optionalfeatures.json","class/index.json","spells/index.json"];
+  const results=await Promise.allSettled(paths.map(path=>fetchJson(dataUrl(path))));
+  results.forEach((result,i)=>{
+   if(result.status!=="fulfilled")return;
+   const data=result.value;addMeta(data);
+   if(paths[i]==="class/index.json"||paths[i]==="spells/index.json"){
+    Object.keys(data||{}).forEach(code=>add(code,code));
+   }
+  });
   const brews=await getActiveBrews();
   const brewNames=brews.flatMap(x=>(x.data._meta?.sources||[]).map(s=>({json:s.json,full:s.full||s.json,abv:s.abbreviation||s.json,homebrew:true}))).filter(x=>x.json);
-  const known=new Set(names.map(x=>x.json));
-  brewNames.forEach(x=>{if(!known.has(x.json)){names.push(x);known.add(x.json)}});
+  brewNames.forEach(x=>add(x.json,x.full,true));
+  const names=[...found.values()].sort((a,b)=>a.full.localeCompare(b.full));
+  if(!names.length)throw Error("Keine Quellen-Metadaten gefunden. Prüfe die Datenbasis und Internetverbindung.");
   if(!Array.isArray(state.activeSources))state.activeSources=names.map(x=>x.json);
   else{
    const seen=new Set(state.homebrewSourceSeen||[]);
@@ -247,7 +261,7 @@ async function loadSourceCatalog(){
   }
   state._sourceCatalog=names;save();
   drawSources(names);status.textContent=`${names.length} Quellen gefunden · ${state.activeSources.length} aktiviert.`;
- }catch(e){status.textContent="Quellenkatalog konnte nicht geladen werden. Lade zunächst eine Kategorie; Quellen lassen sich dann aus den gefundenen Daten ergänzen.";console.warn(e)}
+ }catch(e){status.textContent="Quellen konnten nicht ermittelt werden: "+e.message;console.warn(e)}
 }
 function drawSources(names){
  const box=$("sourceChoices");if(!box)return;const query=($("sourceSearch")?.value||"").toLowerCase();
