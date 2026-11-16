@@ -286,9 +286,16 @@ function drawSources(names){
 async function loadBrewCatalog(){
  const status=$("brewStatus");status.textContent="Lade Homebrew-Katalog …";
  try{
-  const data=await fetchJson(BREW_API);brewCatalog=(data.tree||[]).filter(x=>x.type==="blob"&&x.path.toLowerCase().endsWith(".json")).map(x=>({name:x.path.split("/").pop().replace(/\.json$/i,""),path:x.path,url:BREW_RAW+encodeURI(x.path)}));
-  drawBrewCatalog();status.textContent=`${brewCatalog.length} JSON-Dateien im Homebrew-Repository gefunden.`;
- }catch(e){status.textContent="Homebrew-Katalog konnte nicht geladen werden. Du kannst alternativ eine JSON-Datei oder Raw-URL importieren.";console.warn(e)}
+  // Der kompakte Index aus dem Raw-Repository ist stabiler als die GitHub-Tree-API
+  // und vermeidet deren nicht authentifizierte API-Ratenlimits.
+  const index=await fetchJson(BREW_RAW+"_generated/index-sources.json");
+  brewCatalog=Object.entries(index||{}).map(([source,path])=>({name:source,path,url:BREW_RAW+path.split("/").map(encodeURIComponent).join("/")})).sort((a,b)=>a.name.localeCompare(b.name));
+  if(!brewCatalog.length)throw Error("Der Homebrew-Index enthält keine Einträge.");
+  drawBrewCatalog();status.textContent=`${brewCatalog.length} Homebrew-Quellen gefunden. Suche nach einem Namen oder Dateipfad.`;
+ }catch(e){
+  status.textContent="Homebrew-Katalog konnte nicht geladen werden. Prüfe die Internetverbindung oder importiere eine JSON-Datei/Raw-URL.";
+  console.warn("Homebrew index loading failed:",e);
+ }
 }
 function drawBrewCatalog(){
  const box=$("brewCatalog");if(!box)return;const q=($("brewSearch")?.value||"").toLowerCase(),chosen=new Set(state.homebrew.filter(x=>x.repo).map(x=>x.path));
@@ -316,6 +323,7 @@ function renderSources(){
 function renderSettings(){
  const body=`<div class="grid two">${field("dataBase","5e.tools-Datenbasis (Raw-JSON-Ordner)",state.dataBase,{key:"dataBase"})}<div class="field"><label>Regelwerk für neuen Charakter</label><select id="defaultEdition"><option value="2014">2014 – klassische Regeln</option><option value="2024">2024 – neue Regeln</option></select></div></div>
  <div class="divider"></div><h3>Charakterverwaltung</h3><div class="row"><button class="btn primary" id="newCharacter">+ Neuer Charakter</button><button class="btn subtle" id="exportAll">Alle Charaktere exportieren</button><label class="btn subtle" for="importChars" style="margin:0;cursor:pointer">Charakter(e) importieren</label><input id="importChars" type="file" accept=".json,application/json" multiple hidden></div>
+ <div class="divider"></div><h3>Datensicherung & PC-Übertragung</h3><p class="muted small">Exportiere alle Charaktere, Quellen, Homebrew-Dateien und Einstellungen in eine Sicherungsdatei. Importiere diese Datei anschließend auf deinem PC, um dort denselben Stand zu übernehmen.</p><div class="row"><button class="btn primary" id="exportBackup">Komplettes Grimoire exportieren</button><label class="btn subtle" for="importBackup" style="margin:0;cursor:pointer">Sicherung importieren</label><input id="importBackup" type="file" accept=".json,application/json" hidden></div><p class="status" id="backupStatus"></p>
  <div class="divider"></div><h3>Darstellung & Daten</h3><div class="row"><button class="btn subtle" id="toggleTheme">${state.theme==="dark"?"Hellmodus aktivieren":"Dunkelmodus aktivieren"}</button><button class="btn subtle" id="clearCache">Daten-Cache leeren</button><button class="btn danger" id="resetApp">Lokale App-Daten zurücksetzen</button></div>
  <div class="divider"></div><h3>Über Grimoire</h3><p class="muted small">Grimoire ist ein inoffizieller, lokal gespeicherter D&D-5e-Charaktermanager. Regel- und Homebrew-Daten werden zur Laufzeit aus externen JSON-Quellen geladen. Deine Charakterdaten werden nicht an einen Server übertragen.</p><p class="muted small">Hinweis: Diese App automatisiert nicht sämtliche Sonderregeln, Voraussetzungen, Klassenprogressionen oder Zaubereffekte. Prüfe regelrelevante Entscheidungen anhand deiner erlaubten Bücher und mit deiner Spielleitung.</p>`;
  $("view").innerHTML=panel("Einstellungen","Passe Datenquellen, Charaktere und Darstellung an.",body);
@@ -323,6 +331,8 @@ function renderSettings(){
  $("defaultEdition").onchange=e=>{character().edition=e.target.value;save();toast("Regelwerk geändert")};
  $("view").querySelector('[data-field="dataBase"]').addEventListener("change",e=>{state.dataBase=e.target.value.replace(/\/+$/,"");cache.clear();save();toast("Datenbasis aktualisiert")});
  $("newCharacter").onclick=()=>newCharacter();$("exportAll").onclick=()=>downloadJson(state.characters,"grimoire-characters.json");
+ $("exportBackup").onclick=()=>{const backup={app:"Grimoire D&D 5e Character Manager",formatVersion:1,exportedAt:new Date().toISOString(),state:{...state}};downloadJson(backup,"grimoire-backup.json");$("backupStatus").textContent="Komplette Sicherung wurde erstellt."};
+ $("importBackup").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const restored=data?.app==="Grimoire D&D 5e Character Manager"?data.state:data;if(!restored||!Array.isArray(restored.characters)||!restored.characters.length)throw Error("Das ist keine gültige Grimoire-Sicherung.");if(!confirm("Die aktuelle lokale App-Konfiguration einschließlich Charakteren und Quellen durch die Sicherung ersetzen?"))return;state={...defaultState(),...restored};if(!state.activeId||!state.characters.some(c=>c.id===state.activeId))state.activeId=state.characters[0].id;cache.clear();brewCatalog=[];save();renderView();$("backupStatus").textContent="Sicherung erfolgreich importiert. Grimoire wurde wiederhergestellt." ;toast("Sicherung importiert")}catch(err){$("backupStatus").textContent="Import fehlgeschlagen: "+err.message;toast("Sicherungsdatei konnte nicht importiert werden")}finally{e.target.value=""}};
  $("importChars").onchange=async e=>{for(const f of [...e.target.files])try{const d=JSON.parse(await f.text()),arr=Array.isArray(d)?d:[d];for(const x of arr){if(x&&typeof x==="object"&&x.name){const c={...blankCharacter(),...x,id:uid(),abilities:{...blankCharacter().abilities,...x.abilities}};state.characters.push(c)}}}catch(err){toast(`${f.name}: Import fehlgeschlagen`)}state.activeId=state.characters.at(-1).id;save();renderView();e.target.value=""};
  $("toggleTheme").onclick=toggleTheme;$("clearCache").onclick=()=>{cache.clear();toast("Daten-Cache geleert")};
  $("resetApp").onclick=()=>{if(confirm("Alle Charaktere, Quellen- und Homebrew-Einstellungen lokal löschen?")){localStorage.removeItem("grimoire5e");state=defaultState();state.activeId=state.characters[0].id;cache.clear();renderView();toast("Zurückgesetzt")}};
