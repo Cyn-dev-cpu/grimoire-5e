@@ -239,6 +239,15 @@ const defaultState=()=>({dataBase:DATA_DEFAULT,activeSources:null,homebrew:[],ch
 let state=defaultState(),cache=new Map(),brewCatalog=[],currentView="sheet",libraryCategory="race",libraryItems=[],librarySearch="",librarySource="all",busy=false,creationStep=0,wizardMode=false;
 try{const saved=JSON.parse(localStorage.getItem("grimoire5e")||"null");if(saved&&typeof saved==="object")state={...defaultState(),...saved};}catch(e){}
 if(!state.characters?.length)state.characters=[blankCharacter()];
+// Migrate older local character records to the current schema without discarding user data.
+const normalizeCharacter=raw=>{
+ const base=blankCharacter(),c=raw&&typeof raw==="object"?raw:{};
+ const arrays=["saveProficiencies","skillProficiencies","classSkillProficiencies","backgroundSkillProficiencies","expertise","features","feats","spells","items"];
+ const normalized={...base,...c,id:c.id||base.id,abilities:{...base.abilities,...(c.abilities&&typeof c.abilities==="object"?c.abilities:{})}};
+ for(const key of arrays)normalized[key]=Array.isArray(c[key])?c[key]:[];
+ return normalized;
+};
+state.characters=state.characters.map(normalizeCharacter);
 if(!state.activeId||!state.characters.some(c=>c.id===state.activeId))state.activeId=state.characters[0].id;
 let character=()=>state.characters.find(c=>c.id===state.activeId)||state.characters[0];
 const save=()=>{try{localStorage.setItem("grimoire5e",JSON.stringify(state));setStatus("Lokal gespeichert")}catch(e){setStatus("Speicher voll – exportiere Homebrew/Charaktere als Backup");toast("Browser-Speicherlimit erreicht. Bitte exportiere deine Daten.")}};
@@ -291,7 +300,7 @@ function sourceBadge(x){return x._homebrew?'<span class="tag homebrew">Homebrew<
 function renderNav(){document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===currentView))}
 function setView(v){currentView=v;renderNav();renderView();window.scrollTo({top:0,behavior:"smooth"})}
 function renderHeader(){const c=character();$("characterSwitch").innerHTML=state.characters.map(x=>`<option value="${esc(x.id)}">${esc(x.name||"Unbenannt")}</option>`).join("");$("characterSwitch").value=c.id}
-function renderView(){renderHeader();const titles={sheet:["Character sheet","Charakterbogen"],library:["Compendium","Regelbibliothek"],sources:["Content management","Quellen & Homebrew"],settings:["Preferences","Einstellungen"]};$("eyebrow").textContent=titles[currentView][0]+" / "+String(["sheet","library","sources","settings"].indexOf(currentView)+1).padStart(2,"0");$("pageTitle").textContent=titles[currentView][1];({sheet:renderSheet,library:renderLibrary,sources:renderSources,settings:renderSettings})[currentView]()}
+function renderView(){try{renderHeader();const titles={sheet:["Character sheet","Charakterbogen"],library:["Compendium","Regelbibliothek"],sources:["Content management","Quellen & Homebrew"],settings:["Preferences","Einstellungen"]};$("eyebrow").textContent=titles[currentView][0]+" / "+String(["sheet","library","sources","settings"].indexOf(currentView)+1).padStart(2,"0");$("pageTitle").textContent=titles[currentView][1];({sheet:renderSheet,library:renderLibrary,sources:renderSources,settings:renderSettings})[currentView]()}catch(err){console.error("Grimoire render error",err);const host=$("view");if(host)host.innerHTML=panel("Ansicht konnte nicht geladen werden","Ein Darstellungsfehler wurde abgefangen.",`<div class="notice"><strong>${esc(err?.message||"Unbekannter Fehler")}</strong><p class="small muted">Bitte Seite neu laden. Deine lokal gespeicherten Charakterdaten bleiben erhalten.</p><button class="btn primary" id="retryRender">Erneut versuchen</button></div>`);$("retryRender")?.addEventListener("click",renderView)}}
 function panel(title,sub,body,actions=""){return `<section class="panel"><div class="panel-head"><div><h2>${title}</h2>${sub?`<div class="muted small">${sub}</div>`:""}</div>${actions}</div>${body}</section>`}
 function field(id,label,value,opts={}){return `<div class="field"><label for="${id}">${label}</label>${opts.area?`<textarea id="${id}" data-field="${opts.key||id}">${esc(value)}</textarea>`:`<input id="${id}" data-field="${opts.key||id}" type="${opts.type||"text"}" value="${esc(value)}" ${opts.min!==undefined?`min="${opts.min}"`:""} ${opts.max!==undefined?`max="${opts.max}"`:""}>`}</div>`}
 const wizardOptionCache={};
