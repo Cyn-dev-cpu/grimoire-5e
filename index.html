@@ -134,7 +134,7 @@ body{background:radial-gradient(ellipse at 12% 0%,#c08a3820,transparent 32%),rad
 .spell-result span{display:grid;gap:3px}.spell-result small{font-size:10px;color:var(--muted)}
 .spell-result b{color:var(--gold);font-size:18px}.spell-result.selected{border-color:var(--teal);background:#70d4c116}
 @media(max-width:600px){.spell-picker-results{grid-template-columns:1fr}.spell-filter-row{grid-template-columns:1fr}.ability-budget{width:100%;margin-left:0}}
-.skill-enhanced{display:grid;grid-template-columns:minmax(0,1fr) 38px 105px;align-items:center;gap:8px}.skill-enhanced>label:first-child{display:flex;align-items:center;gap:8px}.expertise-toggle{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gold2);white-space:nowrap}.expertise-toggle input{accent-color:var(--gold)}.expertise-toggle input:disabled{opacity:.25}@media(max-width:480px){.skill-enhanced{grid-template-columns:minmax(0,1fr) 30px 92px;gap:4px}.expertise-toggle{font-size:9px}}</style>
+.skill-enhanced{display:grid;grid-template-columns:minmax(0,1fr) 38px 105px;align-items:center;gap:8px}.skill-enhanced>label:first-child{display:flex;align-items:center;gap:8px}.expertise-toggle{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gold2);white-space:nowrap}.expertise-toggle input{accent-color:var(--gold)}.expertise-toggle input:disabled{opacity:.25}@media(max-width:480px){.skill-enhanced{grid-template-columns:minmax(0,1fr) 30px 92px;gap:4px}.expertise-toggle{font-size:9px}}.feat-result{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}.feat-result-main{display:grid;gap:3px;min-width:0}.feat-result-main small{font-size:10px;color:var(--muted)}.feat-status{font-size:10px}.feat-status.ok{color:var(--teal)}.feat-status.check{color:var(--gold2)}.feat-status.blocked{color:#ef8888}.feat-result button{flex-shrink:0}.skill-enhanced input:disabled{opacity:.35;cursor:not-allowed}</style>
 </head>
 <body>
 <div class="app">
@@ -276,6 +276,15 @@ function chooseWizardOption(cat,index){
  if(cat==="background")c.background=simple;
  save();toast(`${x.name} ausgewählt`);renderSheet();
 }
+async function openFeatPicker(){
+ const host=$("featPickerHost");if(!host)return;host.innerHTML='<p class="muted small">Lade Talente …</p>';
+ try{const feats=await loadCategory("feat");
+ host.innerHTML=`<div class="spell-picker-panel"><div class="picker-head"><div><strong>Talentkompendium</strong><small>${feats.length} Talente aus aktivierten Quellen</small></div><button class="icon-btn" id="closeFeatPicker">×</button></div><input id="featSearch" type="search" placeholder="Talent suchen …"><div id="featResults" class="spell-picker-results"></div></div>`;
+ const draw=()=>{const q=$("featSearch").value.toLowerCase(),filtered=feats.filter(x=>!q||(`${x.name} ${sourceInfo(x)}`).toLowerCase().includes(q));$("featResults").innerHTML=filtered.slice(0,160).map(x=>{const status=featPrerequisiteStatus(x),blocked=status.status==="blocked",selected=character().feats.some(y=>y.name===x.name&&y.source===sourceInfo(x));return `<div class="feat-result"><div class="feat-result-main"><strong>${esc(x.name)}</strong><small>${esc(sourceInfo(x))}</small><span class="feat-status ${blocked?"blocked":status.status==="check"?"check":"ok"}">${esc(status.reasons.join(" · "))}</span></div><button class="btn ${selected?"subtle":"primary"}" data-feat-index="${feats.indexOf(x)}" ${blocked||selected?"disabled":""}>${selected?"Ausgewählt":blocked?"Nicht verfügbar":"Hinzufügen"}</button></div>`}).join("")||'<p class="muted small">Keine Talente gefunden.</p>'};
+ $("featSearch").oninput=draw;$("featResults").onclick=e=>{const b=e.target.closest("[data-feat-index]");if(!b||b.disabled)return;const x=feats[Number(b.dataset.featIndex)],status=featPrerequisiteStatus(x);if(status.status==="blocked")return;const c=character();c.feats.push({name:x.name,source:sourceInfo(x),entries:x.entries,prerequisite:x.prerequisite,_prerequisiteStatus:status.status});save();renderSheet();toast("Talent hinzugefügt")};
+ $("closeFeatPicker").onclick=()=>host.innerHTML="";draw();
+ }catch(e){host.innerHTML=`<div class="empty">Talente konnten nicht geladen werden: ${esc(e.message)}</div>`}
+}
 async function openSpellPicker(){
  const host=$("spellPickerHost");if(!host)return;host.innerHTML='<p class="muted small">Lade Zauberliste …</p>';
  try{
@@ -324,7 +333,7 @@ function renderSheet(){
  </div>
  <div class="divider"></div><div class="section-heading-row"><div><h3>Fertigkeiten</h3><p class="muted small">Klassenabhängige Auswahl wird begrenzt, wenn die Quelldaten sie bereitstellen.</p></div><span class="tag" id="skillCount">${c.skillProficiencies.length}${skillRules.limit!==null?" / "+skillRules.limit:""} geübt</span></div><div class="skill-grid">${skills}</div>
  <div class="divider"></div><h3>Zauberwerte</h3><div class="grid three"><div class="field"><label for="spellAbilitySelect">Zauberattribut</label><select id="spellAbilitySelect"><option value="">Nicht festgelegt</option>${ABILITIES.map(([k,n])=>`<option value="${k}" ${c.spellAbility===k?"selected":""}>${n}</option>`).join("")}</select></div>${field("spellSave","Zauberrettungswurf SG (optional)",c.spellSaveOverride,{type:"number",key:"spellSaveOverride"})}${field("spellAttack","Zauberangriffsbonus (optional)",c.spellAttackOverride,{type:"number",key:"spellAttackOverride"})}</div><div class="spell-picker-launch"><button class="btn primary" id="openSpellPicker" type="button">✧ Zauber auswählen</button><span class="muted small">${c.spells.length} Zauber ausgewählt</span></div><div id="spellPickerHost"></div>
- <div class="divider"></div><h3>Ausgewählte Talente</h3>${choices(c.feats,"feats")}
+ <div class="divider"></div><div class="section-heading-row"><h3>Talente</h3><button class="btn primary" id="openFeatPicker" type="button">◇ Talent auswählen</button></div>${choices(c.feats,"feats")}<div id="featPickerHost"></div>
  <div class="divider"></div><h3>Zauber</h3>${choices(c.spells,"spells")}
  <div class="divider"></div><h3>Features & Merkmale</h3>${choices(c.features,"features")}
  <div class="divider"></div><h3>Ausrüstung</h3>${choices(c.items,"items")}
@@ -351,6 +360,7 @@ function renderSheet(){
  const methodSelect=$("abilityMethod");if(methodSelect)methodSelect.onchange=()=>{c.abilityMethod=methodSelect.value;if(c.abilityMethod==="standard"){const vals=[15,14,13,12,10,8];ABILITIES.forEach(([k],i)=>c.abilities[k]=vals[i])}save();renderSheet()};
  $("view").querySelectorAll("[data-ability-score]").forEach(el=>el.onchange=()=>{const key=el.dataset.abilityScore,value=Number(el.value),method=c.abilityMethod||"pointbuy";if(method==="pointbuy"){const cost=v=>({8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9}[v]??99);const spent=ABILITIES.reduce((n,[k])=>n+cost(Number(k===key?value:c.abilities[k]??10)),0);if(spent>27){toast("Der 27-Punkte-Kauf ist ausgeschöpft.");renderSheet();return}}if(method==="standard"&&ABILITIES.some(([k])=>k!==key&&Number(c.abilities[k])===value)){toast("Jeder Wert des Standardarrays darf nur einmal vergeben werden.");renderSheet();return}c.abilities[key]=value;save();renderSheet()});
  $("spellAbilitySelect")?.addEventListener("change",e=>{c.spellAbility=e.target.value;save();renderSheet()});
+ $("openFeatPicker")?.addEventListener("click",()=>openFeatPicker());
  $("openSpellPicker")?.addEventListener("click",()=>openSpellPicker());
  $("view").querySelectorAll("[data-skill]").forEach(el=>el.addEventListener("change",()=>{const a=c.skillProficiencies,k=el.dataset.skill;c.skillProficiencies=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);if(!el.checked)c.expertise=(c.expertise||[]).filter(x=>x!==k);save();renderSheet()}));
  $("view").querySelectorAll("[data-expertise]").forEach(el=>el.addEventListener("change",()=>{const k=el.dataset.expertise,a=c.expertise||[];c.expertise=el.checked?[...new Set([...a,k])]:a.filter(x=>x!==k);save();renderSheet()}));
@@ -401,7 +411,7 @@ function addToCharacter(x){
  else if(key==="class"){c.class=simple;c.hitDice=x.hd?.faces?`1d${x.hd.faces}`:c.hitDice}
  else if(key==="subclass")c.subclass=simple;
  else if(key==="background")c.background=simple;
- else if(key==="feat")c.feats.push(simple);
+ else if(key==="feat"){const status=featPrerequisiteStatus(x,c);if(status.status==="blocked"){toast("Talent nicht verfügbar: "+status.reasons.join(", "));return}c.feats.push({...simple,prerequisite:x.prerequisite,_prerequisiteStatus:status.status})};
  else if(key==="spell")c.spells.push(simple);
  else if(key==="item")c.items.push(simple);
  else c.features.push(simple);
