@@ -238,8 +238,9 @@ async function openWizardPicker(cat){
   wizardOptionCache[cat]=options;
   const names={race:"Spezies",class:"Klassen",subclass:"Unterklassen",background:"Hintergründe"};
   host.innerHTML=`<div class="picker-head"><div><strong>${names[cat]} auswählen</strong><small>${options.length} verfügbare Optionen aus deinen aktivierten Quellen</small></div><button class="icon-btn" type="button" data-close-picker="${cat}">×</button></div><input class="picker-search" type="search" placeholder="${names[cat]} durchsuchen …" data-picker-search="${cat}"><div class="picker-cards" data-picker-cards="${cat}">${wizardOptionCards(cat,options)}</div>`;
-  host.querySelector(`[data-picker-search="${cat}"]`).oninput=e=>{const q=e.target.value.toLowerCase();host.querySelector(`[data-picker-cards="${cat}"]`).innerHTML=wizardOptionCards(cat,options.filter(x=>`${x.name} ${sourceInfo(x)} ${flattenEntries(x.entries||"")}`.toLowerCase().includes(q)))};
-  host.querySelectorAll("[data-select-option]").forEach(b=>b.onclick=()=>chooseWizardOption(cat,Number(b.dataset.selectOption)));
+  const cards=host.querySelector(`[data-picker-cards="${cat}"]`);
+  cards.onclick=e=>{const button=e.target.closest("[data-select-option]");if(button)chooseWizardOption(cat,Number(button.dataset.selectOption))};
+  host.querySelector(`[data-picker-search="${cat}"]`).oninput=e=>{const q=e.target.value.toLowerCase();cards.innerHTML=wizardOptionCards(cat,options.filter(x=>`${x.name} ${sourceInfo(x)} ${flattenEntries(x.entries||"")}`.toLowerCase().includes(q)))};
   host.querySelector(`[data-close-picker="${cat}"]`).onclick=()=>host.innerHTML="";
  }catch(e){host.innerHTML=`<div class="empty">Optionen konnten nicht geladen werden: ${esc(e.message)}</div>`}
 }
